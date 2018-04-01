@@ -9,10 +9,6 @@ using Ionic.Zip;
 using cpsLIB;
 using System.Runtime.InteropServices;
 
-//**************************************************************************************
-//#################################### TODO ###########################################
-//**************************************************************************************
-
 namespace AutoHome
 {
     public enum aktor_type { undef, jalousie, light, heater, sensor }
@@ -1130,6 +1126,12 @@ namespace AutoHome
                         p.BackColor = Color.Yellow;
                     else if (state == udp_state.SendError && p.BackColor != Color.Red)
                         p.BackColor = Color.Red;
+
+                    //wenn verbindung disconnected automatischer reconnect
+                    if (state == udp_state.disconnected && var.reconnect_on_connection_lose && 
+                        (((plc)p.Tag).reconnect_counter <= var.reconnect_on_connection_lose_count)) {
+                        ((plc)p.Tag).connect(CpsNet);
+                    }
                 }
             }
         }

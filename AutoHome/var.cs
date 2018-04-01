@@ -45,6 +45,8 @@ namespace AutoHome
         public static bool show_expert_mode = false;
         public static int connect_error_retrys = 5; //anzahl der fehler bei verbindungsproblemen bis abbruch
         //public static bool make_connection_OnRcvUnknownFrame = true;
+        public static bool reconnect_on_connection_lose = false;
+        public static int reconnect_on_connection_lose_count = 10;
 
         //CpsLIB Vars
         public static int CpsServerPort = 50000;

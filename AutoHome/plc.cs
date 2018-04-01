@@ -14,8 +14,7 @@ namespace AutoHome
     class plc
     {
         
-        #region vars public
-
+        #region vars public [Serialized]
         private const string plc_default_name = "PLC not named";
 
         private string _ip;
@@ -91,6 +90,11 @@ namespace AutoHome
         [NonSerialized]
         //public Frame DataMngType_GetPlcSensorValues;
         Dictionary<Int16, float> DicSensorVal;
+
+        //IBS connect counter
+        [NonSerialized]
+        public int reconnect_counter = 0;
+
         #endregion
 
         //Thread SendMsg;
@@ -152,6 +156,7 @@ namespace AutoHome
         
         public void connect(CpsNet _cpsNet)
         {
+            reconnect_counter++;
             cpsNet = _cpsNet;
             DicSensorVal = new Dictionary<short, float>();
 

@@ -42,10 +42,12 @@
             this.label1 = new System.Windows.Forms.Label();
             this.comboBox_headerFlag = new System.Windows.Forms.ComboBox();
             this.panel_sendMsg = new System.Windows.Forms.Panel();
-            this.textBox_payload = new System.Windows.Forms.TextBox();
+            this.panel_IOdata = new System.Windows.Forms.Panel();
             this.textBox_aktuatorID = new System.Windows.Forms.TextBox();
             this.label_aktuatorID = new System.Windows.Forms.Label();
-            this.panel_IOdata = new System.Windows.Forms.Panel();
+            this.textBox_payload = new System.Windows.Forms.TextBox();
+            this.label_reconnect_counter = new System.Windows.Forms.Label();
+            this.label_display_reconnect_counter = new System.Windows.Forms.Label();
             this.panel_sendMsg.SuspendLayout();
             this.panel_IOdata.SuspendLayout();
             this.SuspendLayout();
@@ -186,12 +188,15 @@
             this.panel_sendMsg.Size = new System.Drawing.Size(274, 107);
             this.panel_sendMsg.TabIndex = 14;
             // 
-            // textBox_payload
+            // panel_IOdata
             // 
-            this.textBox_payload.Location = new System.Drawing.Point(7, 67);
-            this.textBox_payload.Name = "textBox_payload";
-            this.textBox_payload.Size = new System.Drawing.Size(187, 20);
-            this.textBox_payload.TabIndex = 14;
+            this.panel_IOdata.Controls.Add(this.textBox_aktuatorID);
+            this.panel_IOdata.Controls.Add(this.label_aktuatorID);
+            this.panel_IOdata.Location = new System.Drawing.Point(141, 40);
+            this.panel_IOdata.Name = "panel_IOdata";
+            this.panel_IOdata.Size = new System.Drawing.Size(121, 27);
+            this.panel_IOdata.TabIndex = 17;
+            this.panel_IOdata.Visible = false;
             // 
             // textBox_aktuatorID
             // 
@@ -210,21 +215,38 @@
             this.label_aktuatorID.TabIndex = 16;
             this.label_aktuatorID.Text = "ID:";
             // 
-            // panel_IOdata
+            // textBox_payload
             // 
-            this.panel_IOdata.Controls.Add(this.textBox_aktuatorID);
-            this.panel_IOdata.Controls.Add(this.label_aktuatorID);
-            this.panel_IOdata.Location = new System.Drawing.Point(141, 40);
-            this.panel_IOdata.Name = "panel_IOdata";
-            this.panel_IOdata.Size = new System.Drawing.Size(121, 27);
-            this.panel_IOdata.TabIndex = 17;
-            this.panel_IOdata.Visible = false;
+            this.textBox_payload.Location = new System.Drawing.Point(7, 67);
+            this.textBox_payload.Name = "textBox_payload";
+            this.textBox_payload.Size = new System.Drawing.Size(187, 20);
+            this.textBox_payload.TabIndex = 14;
+            // 
+            // label_reconnect_counter
+            // 
+            this.label_reconnect_counter.AutoSize = true;
+            this.label_reconnect_counter.Location = new System.Drawing.Point(150, 27);
+            this.label_reconnect_counter.Name = "label_reconnect_counter";
+            this.label_reconnect_counter.Size = new System.Drawing.Size(97, 13);
+            this.label_reconnect_counter.TabIndex = 15;
+            this.label_reconnect_counter.Text = "reconnect counter:";
+            // 
+            // label_display_reconnect_counter
+            // 
+            this.label_display_reconnect_counter.AutoSize = true;
+            this.label_display_reconnect_counter.Location = new System.Drawing.Point(253, 27);
+            this.label_display_reconnect_counter.Name = "label_display_reconnect_counter";
+            this.label_display_reconnect_counter.Size = new System.Drawing.Size(28, 13);
+            this.label_display_reconnect_counter.TabIndex = 16;
+            this.label_display_reconnect_counter.Text = "XXX";
             // 
             // FrmPlcClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(311, 267);
+            this.Controls.Add(this.label_display_reconnect_counter);
+            this.Controls.Add(this.label_reconnect_counter);
             this.Controls.Add(this.panel_sendMsg);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label_time_difference);
@@ -268,5 +290,7 @@
         private System.Windows.Forms.Panel panel_IOdata;
         private System.Windows.Forms.TextBox textBox_aktuatorID;
         private System.Windows.Forms.Label label_aktuatorID;
+        private System.Windows.Forms.Label label_reconnect_counter;
+        private System.Windows.Forms.Label label_display_reconnect_counter;
     }
 }

@@ -49,6 +49,7 @@
             this.label_timer_log = new System.Windows.Forms.Label();
             this.checkBox_expert_mode = new System.Windows.Forms.CheckBox();
             this.panel_expert = new System.Windows.Forms.Panel();
+            this.checkBox_reconnect_plc_client = new System.Windows.Forms.CheckBox();
             this.button_save_changes = new System.Windows.Forms.Button();
             this.label_WatchdagTime = new System.Windows.Forms.Label();
             this.textBox_WatchdagTime = new System.Windows.Forms.TextBox();
@@ -95,6 +96,8 @@
             this.label_cps_server_port = new System.Windows.Forms.Label();
             this.textBox_cpsServerPort = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label_reconnct_trys = new System.Windows.Forms.Label();
+            this.textBox_reconnect_trys = new System.Windows.Forms.TextBox();
             this.panel_edit_plc.SuspendLayout();
             this.panel_expert.SuspendLayout();
             this.panel_edit_aktuator.SuspendLayout();
@@ -240,7 +243,7 @@
             // checkBox_display_exception
             // 
             this.checkBox_display_exception.AutoSize = true;
-            this.checkBox_display_exception.Location = new System.Drawing.Point(10, 87);
+            this.checkBox_display_exception.Location = new System.Drawing.Point(212, 84);
             this.checkBox_display_exception.Name = "checkBox_display_exception";
             this.checkBox_display_exception.Size = new System.Drawing.Size(107, 17);
             this.checkBox_display_exception.TabIndex = 7;
@@ -298,6 +301,9 @@
             // 
             // panel_expert
             // 
+            this.panel_expert.Controls.Add(this.textBox_reconnect_trys);
+            this.panel_expert.Controls.Add(this.label_reconnct_trys);
+            this.panel_expert.Controls.Add(this.checkBox_reconnect_plc_client);
             this.panel_expert.Controls.Add(this.button_save_changes);
             this.panel_expert.Controls.Add(this.label_WatchdagTime);
             this.panel_expert.Controls.Add(this.textBox_WatchdagTime);
@@ -321,9 +327,20 @@
             this.panel_expert.Size = new System.Drawing.Size(334, 217);
             this.panel_expert.TabIndex = 15;
             // 
+            // checkBox_reconnect_plc_client
+            // 
+            this.checkBox_reconnect_plc_client.AutoSize = true;
+            this.checkBox_reconnect_plc_client.Location = new System.Drawing.Point(10, 169);
+            this.checkBox_reconnect_plc_client.Name = "checkBox_reconnect_plc_client";
+            this.checkBox_reconnect_plc_client.Size = new System.Drawing.Size(184, 17);
+            this.checkBox_reconnect_plc_client.TabIndex = 33;
+            this.checkBox_reconnect_plc_client.Text = "reconnect plc on connection lose";
+            this.checkBox_reconnect_plc_client.UseVisualStyleBackColor = true;
+            this.checkBox_reconnect_plc_client.CheckedChanged += new System.EventHandler(this.checkBox_reconnect_plc_client_CheckedChanged);
+            // 
             // button_save_changes
             // 
-            this.button_save_changes.Location = new System.Drawing.Point(201, 191);
+            this.button_save_changes.Location = new System.Drawing.Point(201, 189);
             this.button_save_changes.Name = "button_save_changes";
             this.button_save_changes.Size = new System.Drawing.Size(126, 23);
             this.button_save_changes.TabIndex = 32;
@@ -335,7 +352,7 @@
             // label_WatchdagTime
             // 
             this.label_WatchdagTime.AutoSize = true;
-            this.label_WatchdagTime.Location = new System.Drawing.Point(166, 156);
+            this.label_WatchdagTime.Location = new System.Drawing.Point(166, 130);
             this.label_WatchdagTime.Name = "label_WatchdagTime";
             this.label_WatchdagTime.Size = new System.Drawing.Size(83, 13);
             this.label_WatchdagTime.TabIndex = 31;
@@ -343,7 +360,7 @@
             // 
             // textBox_WatchdagTime
             // 
-            this.textBox_WatchdagTime.Location = new System.Drawing.Point(255, 153);
+            this.textBox_WatchdagTime.Location = new System.Drawing.Point(255, 127);
             this.textBox_WatchdagTime.Name = "textBox_WatchdagTime";
             this.textBox_WatchdagTime.Size = new System.Drawing.Size(53, 20);
             this.textBox_WatchdagTime.TabIndex = 30;
@@ -378,7 +395,7 @@
             // checkBox_start_timers_at_startup
             // 
             this.checkBox_start_timers_at_startup.AutoSize = true;
-            this.checkBox_start_timers_at_startup.Location = new System.Drawing.Point(10, 152);
+            this.checkBox_start_timers_at_startup.Location = new System.Drawing.Point(10, 126);
             this.checkBox_start_timers_at_startup.Name = "checkBox_start_timers_at_startup";
             this.checkBox_start_timers_at_startup.Size = new System.Drawing.Size(111, 17);
             this.checkBox_start_timers_at_startup.TabIndex = 25;
@@ -388,7 +405,7 @@
             // 
             // textBox_connect_error_retrys
             // 
-            this.textBox_connect_error_retrys.Location = new System.Drawing.Point(110, 127);
+            this.textBox_connect_error_retrys.Location = new System.Drawing.Point(110, 101);
             this.textBox_connect_error_retrys.Name = "textBox_connect_error_retrys";
             this.textBox_connect_error_retrys.Size = new System.Drawing.Size(39, 20);
             this.textBox_connect_error_retrys.TabIndex = 24;
@@ -397,7 +414,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(7, 130);
+            this.label3.Location = new System.Drawing.Point(7, 104);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(92, 13);
             this.label3.TabIndex = 23;
@@ -406,7 +423,7 @@
             // linkLabel_default_project_path
             // 
             this.linkLabel_default_project_path.AutoSize = true;
-            this.linkLabel_default_project_path.Location = new System.Drawing.Point(7, 172);
+            this.linkLabel_default_project_path.Location = new System.Drawing.Point(7, 146);
             this.linkLabel_default_project_path.Name = "linkLabel_default_project_path";
             this.linkLabel_default_project_path.Size = new System.Drawing.Size(98, 13);
             this.linkLabel_default_project_path.TabIndex = 14;
@@ -417,7 +434,7 @@
             // checkBox_plc_mode_hold_connection
             // 
             this.checkBox_plc_mode_hold_connection.AutoSize = true;
-            this.checkBox_plc_mode_hold_connection.Location = new System.Drawing.Point(10, 110);
+            this.checkBox_plc_mode_hold_connection.Location = new System.Drawing.Point(10, 84);
             this.checkBox_plc_mode_hold_connection.Name = "checkBox_plc_mode_hold_connection";
             this.checkBox_plc_mode_hold_connection.Size = new System.Drawing.Size(119, 17);
             this.checkBox_plc_mode_hold_connection.TabIndex = 22;
@@ -780,6 +797,23 @@
             this.panel1.Size = new System.Drawing.Size(368, 583);
             this.panel1.TabIndex = 27;
             // 
+            // label_reconnct_trys
+            // 
+            this.label_reconnct_trys.AutoSize = true;
+            this.label_reconnct_trys.Location = new System.Drawing.Point(7, 194);
+            this.label_reconnct_trys.Name = "label_reconnct_trys";
+            this.label_reconnct_trys.Size = new System.Drawing.Size(77, 13);
+            this.label_reconnct_trys.TabIndex = 34;
+            this.label_reconnct_trys.Text = "reconnect trys:";
+            // 
+            // textBox_reconnect_trys
+            // 
+            this.textBox_reconnect_trys.Location = new System.Drawing.Point(87, 191);
+            this.textBox_reconnect_trys.Name = "textBox_reconnect_trys";
+            this.textBox_reconnect_trys.Size = new System.Drawing.Size(34, 20);
+            this.textBox_reconnect_trys.TabIndex = 35;
+            this.textBox_reconnect_trys.TextChanged += new System.EventHandler(this.textBox_reconnect_trys_TextChanged);
+            // 
             // FrmParam
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -881,5 +915,8 @@
         private System.Windows.Forms.Label label_WatchdagTime;
         private System.Windows.Forms.TextBox textBox_WatchdagTime;
         private System.Windows.Forms.Button button_save_changes;
+        private System.Windows.Forms.CheckBox checkBox_reconnect_plc_client;
+        private System.Windows.Forms.TextBox textBox_reconnect_trys;
+        private System.Windows.Forms.Label label_reconnct_trys;
     }
 }

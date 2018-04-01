@@ -72,6 +72,8 @@ namespace AutoHome
             textBox_WatchdagTime.Text = var.WatchdagTime_PLCtoPC.ToString();
 
             checkBoxFooterShowPlcTime.Checked = var.FooterShowPlcTime;
+            checkBox_reconnect_plc_client.Checked = var.reconnect_on_connection_lose;
+            textBox_reconnect_trys.Text = var.reconnect_on_connection_lose_count.ToString();
         }
 
         private void FrmParam_FormClosing(object sender, FormClosingEventArgs e)
@@ -155,6 +157,9 @@ namespace AutoHome
             }
             else
                 textBox_WatchdagTime.BackColor = Color.Red;
+
+            var.reconnect_on_connection_lose = checkBox_reconnect_plc_client.Checked;
+            var.reconnect_on_connection_lose_count = Convert.ToInt32(textBox_reconnect_trys.Text);
         }
         private void checkBox_expert_mode_CheckedChanged(object sender, EventArgs e)
         {
@@ -189,12 +194,21 @@ namespace AutoHome
             button_save_changes.Visible = true;
         }
 
+        private void checkBox_reconnect_plc_client_CheckedChanged(object sender, EventArgs e)
+        {
+            button_save_changes.Visible = true;
+        }
+
         private void checkBox_plc_mode_hold_connection_CheckedChanged(object sender, EventArgs e)
         {
             MessageBox.Show("TODO");
         }
 
         private void textBox_WatchdagTime_TextChanged(object sender, EventArgs e)
+        {
+            button_save_changes.Visible = true;
+        }
+        private void textBox_reconnect_trys_TextChanged(object sender, EventArgs e)
         {
             button_save_changes.Visible = true;
         }
@@ -556,7 +570,6 @@ namespace AutoHome
             button_save_changes.Visible = false;
             safe_changes();
         }
-
-      
+        
     }
 }
