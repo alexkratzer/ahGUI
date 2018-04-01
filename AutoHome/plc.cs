@@ -114,7 +114,6 @@ namespace AutoHome
             TimerInitRequest.Elapsed += new ElapsedEventHandler(OnTimeRequest);
             TimerInitRequest.Interval = var.timer_GetRequestInterval;
             TimerInitRequest.Enabled = true;
-            
         }
 
         //alle aktoren und alle sensoren status abfragen
@@ -225,6 +224,9 @@ namespace AutoHome
                 try
                 {
                     //Frame _f = (Frame)f;
+
+                    //reset reconnect counter on connection lose
+                    reconnect_counter = 0;
 
                     if (_f.GetHeaderFlag(FrameHeaderFlag.SYNC))
                         interpreteSYNCacknowlege(_f);

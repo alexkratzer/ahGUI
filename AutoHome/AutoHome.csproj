@@ -51,6 +51,12 @@
     <Compile Include="aktuator.cs" />
     <Compile Include="aktuator_control.cs" />
     <Compile Include="floor_plan.cs" />
+    <Compile Include="FrmLog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmLog.Designer.cs">
+      <DependentUpon>FrmLog.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmPlatformConfig.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -165,6 +171,9 @@
       <DependentUpon>UC_SensorValue.cs</DependentUpon>
     </Compile>
     <Compile Include="var.cs" />
+    <EmbeddedResource Include="FrmLog.resx">
+      <DependentUpon>FrmLog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmPlatformConfig.resx">
       <DependentUpon>FrmPlatformConfig.cs</DependentUpon>
     </EmbeddedResource>

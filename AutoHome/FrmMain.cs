@@ -22,7 +22,7 @@ namespace AutoHome
         List<platform> list_platform = new List<platform>();
         List<floor_plan> list_floor_plan = new List<floor_plan>();
         List<aktuator_control> list_aktuator_controls = new List<aktuator_control>(); //list to store userControls of aktuator
-        public List<string> ListLogMsg = new List<string>();
+        //public List<string> ListLogMsg = new List<string>();
 
         QueueRcvFromCps rcvQueue;
         cpsLIB.CpsNet CpsNet;
@@ -47,7 +47,8 @@ namespace AutoHome
             list_plc = var.deserialize_plc();
             list_platform = var.deserialize_platform(list_plc);
             log.msg(this, "### start AutoHome GUI " + tool_version + " ###");
-            ListLogMsg.Add("### start AutoHome GUI " + tool_version + " ###");
+            //ListLogMsg.Add("### start AutoHome GUI " + tool_version + " ###");
+
         }
 
         private void safe_projekt_data()
@@ -68,6 +69,7 @@ namespace AutoHome
                 foreach (plc p in list_plc)
                     p.connect(CpsNet);
             }
+            log.msg(this, "initCps -> done");
         }
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -525,12 +527,17 @@ namespace AutoHome
 
         private void logMsgToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            /*
             string s = "";
             foreach (string st in ListLogMsg)
                 s += st + Environment.NewLine;
             MessageBox.Show(s, "Log Msg: " + ListLogMsg.Count);
+            */
+            FrmLog fl = new FrmLog(log.LogList);
+            fl.ShowDialog();
+
         }
-        #endregion
+        #endregion 
 
         #region footer - status bar
         #region make_status_bar
@@ -551,10 +558,10 @@ namespace AutoHome
         private ToolStripDropDownButton TSDDB_server;
         private void make_status_bar()
         {
-            
             //################# client region ######################
             foreach (plc p in list_plc)
             {
+                log.msg(this, "make status bar: " + p.ToString());
                 ToolStripDropDownButton TSDDB = new ToolStripDropDownButton("->" + p.NamePlc, null, null, "->" + p.NamePlc);
                 TSDDB.Tag = p;
                 TSDDB.BackColor = Color.Yellow;
@@ -1113,7 +1120,7 @@ namespace AutoHome
         {
             //this.Text = "AutoHome " + CpsNet.GetStatus();
             TSDDB_server.Text = "[server status] " + CpsNet.GetStatus();
-            logMsgToolStripMenuItem.Text = "Log Msg [" + ListLogMsg.Count.ToString() + "]";
+            logMsgToolStripMenuItem.Text = "Log Msg [" + log.LogList.Count.ToString() + "]";
 
             foreach (ToolStripDropDownButton p in statusStrip_bottom.Items)
             {

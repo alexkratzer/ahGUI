@@ -33,7 +33,8 @@ namespace AutoHome
 
         public void logMsg(string msg)
         {
-            FrmMain.ListLogMsg.Add(msg);
+            //FrmMain.ListLogMsg.Add(msg);
+            log.msg(this, "QueueRcvFromCps " + msg);
             //throw new NotImplementedException();
         }
 
