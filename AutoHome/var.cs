@@ -101,6 +101,7 @@ namespace AutoHome
                 {
                     string[] inidata = File.ReadAllText(path).Split(';');                        
                     Type t = typeof(var);
+                    int vars_count = 0;
 
                     foreach (string s in inidata)
                     {
@@ -119,18 +120,18 @@ namespace AutoHome
                                     field.SetValue(null, Convert.ToInt32(row[1]));
                                 else if (field.FieldType.Name.Equals("Int16"))
                                     field.SetValue(null, Convert.ToInt16(row[1]));
-                                //else
-                                //dbg.log("var", "value type not available: " + field.FieldType.Name, true);
+                                else
+                                    log.msg("var", "read_ini_file() -> value type not available: " + field.FieldType.Name);
+                                vars_count++;
                             }
                         }
                     }
-                    //log.msg("var", Environment.NewLine + Environment.NewLine + "read_ini_file() DONE");
+                    log.msg("var", "read_ini_file() DONE (vars count: "+vars_count.ToString()+")");
                 }
                 else
                     log.msg("var", "read_ini_file() FAILED -> File: \"" + path + "\" not found");
             }
             catch (Exception e) { log.exception("var", "read_ini_file()", e); }
-
         }
 
         public static void write_ini_file()
@@ -150,10 +151,14 @@ namespace AutoHome
                 BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly;
                 FieldInfo[] fields = type.GetFields(flags);
 
+                int fields_count = 0;
                 foreach (FieldInfo field in fields)
+                {
                     File.AppendAllText(filepath, field.Name.ToString() + "=" + field.GetValue(p) + ";" + Environment.NewLine);
+                    fields_count++;
+                }
 
-                //log.msg("var", "write_ini_file() DONE");
+                log.msg("var", "write_ini_file() DONE (fields count: "+fields_count.ToString()+")");
             }
             catch (Exception e) { log.exception("var", "write_ini_file()", e); }
         }
@@ -174,6 +179,7 @@ namespace AutoHome
                 Stream stream = new FileStream(var.workingdir + "\\" + var.file_plc,
                                          FileMode.Create,
                                          FileAccess.Write, FileShare.None);
+                log.msg("var", "serialize_plc() list.length: " + list.Count);
 
                 formatter.Serialize(stream, list);
                 stream.Close();
@@ -225,6 +231,8 @@ namespace AutoHome
                                          FileMode.Create,
                                          FileAccess.Write, FileShare.None);
 
+                log.msg("var", "serialize_platform() list.length: " + list.Count);
+
                 formatter.Serialize(stream, list);
                 stream.Close();
                 //log.msg("var", "serialize_platform() DONE");
@@ -243,6 +251,8 @@ namespace AutoHome
                 Stream stream = new FileStream(var.workingdir + "\\" + var.file_floor_plan,
                                          FileMode.Create,
                                          FileAccess.Write, FileShare.None);
+
+                log.msg("var", "serialize_floor_plan() list.length: " + list.Count);
 
                 formatter.Serialize(stream, list);
                 stream.Close();
@@ -284,7 +294,7 @@ namespace AutoHome
             foreach (plc p in list)
                 foreach (aktuator a in p.ListAktuator)
                     a._plc = p;
-
+            log.msg("var", "deserialize_plc() DONE (list.count count: " + list.Count + ")");
             return list;
         }
 
@@ -369,6 +379,7 @@ namespace AutoHome
             catch (Exception e) {
                 log.exception("var", "deserialize_platform()", e);
             }
+            log.msg("var", "deserialize_platform() DONE (list.count count: " + list.Count + ")");
             return list;
         }
 
@@ -397,6 +408,8 @@ namespace AutoHome
             {
                 log.exception("var", "deserialize_floor_plan()", e);
             }
+            
+            log.msg("var", "deserialize_floor_plan() DONE (list.count count: " + list.Count + ")");
             return list;
         }
 

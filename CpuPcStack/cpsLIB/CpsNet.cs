@@ -15,9 +15,9 @@ namespace cpsLIB
     public class CpsNet
     {
         //flags to control all connections
-        public Int16 MaxSYNCResendTrys = 3; //Anzahl der erlaubten Wiederholungen bei SYNC Telegram
-        public Int16 MaxRcvErrorCounter = 20; //Anzahl der nicht beantworteten requests bis UDPstate auf disconnected gesetzt wird
-        public Int16 WATCHDOG_WORK = 2000; //Erlaubte Zeitdauer in ms bis PLC geantwortet haben muss
+        public Int16 MaxSYNCResendTrys = 30; //Anzahl der erlaubten Wiederholungen bei SYNC Telegram
+        public Int16 MaxRcvErrorCounter = 200; //Anzahl der nicht beantworteten requests bis UDPstate auf disconnected gesetzt wird
+        public Int16 WATCHDOG_WORK = 5000; //Erlaubte Zeitdauer in ms bis PLC geantwortet haben muss
         public bool SendFramesCallback = false; //es werden die "zu sendenden frames" als callback zurückgeliefert
         public bool SendOnlyIfConnected = true; //TRUE => ohne Verbindungsaufbau über SYNC werden keine Frames gesendet (oder udp_state!=connected)
 
@@ -361,6 +361,7 @@ namespace cpsLIB
                                     logMsg(new log(LogType.error, "stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")", dicF.Value));
                                     if(!takeFrameFromStack(dicF.Key))
                                             logMsg(new log(LogType.error, "ERROR: takeFrameFromStack()", dicF.Value));
+                                    QueueRcvFrameToApp.logMsg("[" + dicF.Value.client.ToString() + "] stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")");
                                 }
                             }
                             else

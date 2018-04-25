@@ -320,6 +320,5 @@ ASALocalRun/
 
 # MSBuild Binary and Structured Log
 *.binlog
-/archive_AppData_Roaming
 /img
 /AH_RunningStartupConfig

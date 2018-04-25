@@ -1,0 +1,32 @@
+0 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] ### start AutoHome GUI V0.0.3 ###
+1 25.04.2018 01:53:01 [var] read_ini_file() DONE (vars count: 37)
+2 25.04.2018 01:53:01 [var] deserialize_plc() DONE (list.count count: 4)
+3 25.04.2018 01:53:01 [var] deserialize_platform() DONE (list.count count: 7)
+4 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] load_projekt_data() DONE
+5 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] make status bar: [PLC EG]
+6 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] make status bar: [PLC OG]
+7 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] make status bar: [IBS]
+8 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] make status bar: [PLC Carport]
+9 25.04.2018 01:53:01 [AutoHome.QueueRcvFromCps] logMsg: [192.168.1.202:2202] make new client
+10 25.04.2018 01:53:01 [AutoHome.QueueRcvFromCps] logMsg: [192.168.1.201:2202] make new client
+11 25.04.2018 01:53:01 [AutoHome.QueueRcvFromCps] logMsg: [192.168.1.205:2202] make new client
+12 25.04.2018 01:53:01 [AutoHome.QueueRcvFromCps] logMsg: [192.168.1.203:2202] make new client
+13 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] initCps -> done
+14 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] TimerUpdateGui.Start()
+15 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] timer_footer_connection_status.Start()
+16 25.04.2018 01:53:01 [AutoHome.FrmMain, Text: AutoHome] timer_start(): timer_GetRequestInterval.Start()
+17 25.04.2018 01:53:54 [var] deserialize_floor_plan() DONE (list.count count: 8)
+18 25.04.2018 01:54:18 [var] serialize_floor_plan() list.length: 8
+19 25.04.2018 01:54:27 [var] safe_projekt_data() START
+20 25.04.2018 01:54:27 [var] write_ini_file() DONE (fields count: 39)
+21 25.04.2018 01:54:27 [var] serialize_platform() list.length: 5
+22 25.04.2018 01:54:27 [var] serialize_plc() list.length: 4
+23 25.04.2018 01:54:27 [var] safe_projekt_data() DONE
+24 25.04.2018 01:54:57 [AutoHome.FrmMain, Text: AutoHome] save project data to: G:\ahGUI\archive_AppData_Roaming\AutoHome_2018-4-25.zip
+25 25.04.2018 01:55:13 [AutoHome.FrmMain, Text: AutoHome] timer_stop(): timer_GetRequestInterval.Stop()
+26 25.04.2018 01:55:13 [var] safe_projekt_data() START
+27 25.04.2018 01:55:13 [var] write_ini_file() DONE (fields count: 39)
+28 25.04.2018 01:55:13 [var] serialize_platform() list.length: 5
+29 25.04.2018 01:55:13 [var] serialize_plc() list.length: 4
+30 25.04.2018 01:55:13 [var] safe_projekt_data() DONE
+31 25.04.2018 01:55:14 [AutoHome.FrmMain, Text: AutoHome] ### close AutoHome GUI ###

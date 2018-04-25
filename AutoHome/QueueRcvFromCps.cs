@@ -17,25 +17,23 @@ namespace AutoHome
             FrmMain = _FrmMain;
         }
 
-        int dbgcount = 0;
+        //int dbgcount = 0;
         public void interprete_frame(object o)
         {
-            if (dbgcount > 10)
-                return ;
+            //if (dbgcount > 10)
+            //    return ;
             foreach (plc p in ListPlc)
-
                 if (p.interpreteFrame((Frame)o))
                     return ;
-                dbgcount++;
-                //TODO: keine plc hat frame verarbeitet
-                logMsg("QueueRcvFromCps: keine plc hat frame verarbeitet");
+            //dbgcount++;
+            //TODO: keine plc hat frame verarbeitet
+            logMsg("QueueRcvFromCps: keine plc hat frame verarbeitet");
         }
 
         public void logMsg(string msg)
         {
-            //FrmMain.ListLogMsg.Add(msg);
-            log.msg(this, "QueueRcvFromCps " + msg);
-            //throw new NotImplementedException();
+            //if(!msg.Contains("client disconnected because no answer to request"))
+                log.msg(this, "logMsg: " + msg);
         }
 
 

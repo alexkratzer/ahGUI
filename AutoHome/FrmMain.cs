@@ -22,7 +22,6 @@ namespace AutoHome
         List<platform> list_platform = new List<platform>();
         List<floor_plan> list_floor_plan = new List<floor_plan>();
         List<aktuator_control> list_aktuator_controls = new List<aktuator_control>(); //list to store userControls of aktuator
-        //public List<string> ListLogMsg = new List<string>();
 
         QueueRcvFromCps rcvQueue;
         cpsLIB.CpsNet CpsNet;
@@ -31,6 +30,8 @@ namespace AutoHome
         public FrmMain()
         {
             InitializeComponent();
+            log.msg(this, "### start AutoHome GUI " + tool_version + " ###");
+
             load_projekt_data();
 
             init_gui();
@@ -46,16 +47,15 @@ namespace AutoHome
             var.read_ini_file();
             list_plc = var.deserialize_plc();
             list_platform = var.deserialize_platform(list_plc);
-            log.msg(this, "### start AutoHome GUI " + tool_version + " ###");
-            //ListLogMsg.Add("### start AutoHome GUI " + tool_version + " ###");
-
+            log.msg(this, "load_projekt_data() DONE");
         }
-
         private void safe_projekt_data()
         {
+            log.msg("var", "safe_projekt_data() START");
             var.write_ini_file();
             var.serialize_platform(list_platform);
             var.serialize_plc(list_plc);
+            log.msg("var", "safe_projekt_data() DONE");
         }
         private void initCps()
         {
@@ -71,7 +71,6 @@ namespace AutoHome
             }
             log.msg(this, "initCps -> done");
         }
-
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
@@ -115,23 +114,23 @@ namespace AutoHome
                 load_projekt_data();
                 update_gui();
                 var.default_project_data_path = openfd.InitialDirectory;
-                //log.msg(this, "load project data from: " + openfd.FileName);
+                log.msg(this, "load project data from: " + openfd.FileName);
             }
         }
 
         private void saveToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("saveToolStripMenuItem1_Click", "TODO");
-            //safe_projekt_data();
+            safe_projekt_data();
+            MessageBox.Show("saveToolStripMenuItem1_Click", "safe_projekt_data to workingdir-> done");
 
-            //SaveFileDialog savefd = new SaveFileDialog();
-            //savefd.InitialDirectory = var.default_project_data_path;
-            //savefd.FileName = var.tool_text + "_" + DateTime.Now.Year.ToString() + "-" + DateTime.Now.Month.ToString() + "-" + DateTime.Now.Day.ToString();
-            //savefd.Filter = "Zip-File (*.zip)|*.zip";
-            //if (savefd.ShowDialog() == DialogResult.OK)
-            //    zip(savefd.FileName, true);
-            //var.default_project_data_path = savefd.InitialDirectory;
-            ////log.msg(this, "save project data to: " + savefd.FileName);
+            SaveFileDialog savefd = new SaveFileDialog();
+            savefd.InitialDirectory = var.default_project_data_path;
+            savefd.FileName = var.tool_text + "_" + DateTime.Now.Year.ToString() + "-" + DateTime.Now.Month.ToString() + "-" + DateTime.Now.Day.ToString();
+            savefd.Filter = "Zip-File (*.zip)|*.zip";
+            if (savefd.ShowDialog() == DialogResult.OK)
+                zip(savefd.FileName, true);
+            var.default_project_data_path = savefd.InitialDirectory;
+            log.msg(this, "save project data to: " + savefd.FileName);
         }
 
 
@@ -465,12 +464,14 @@ namespace AutoHome
         #region menue data logger
         private void openToolStripMenuItem2_Click(object sender, EventArgs e)
         {
+            log.msg(this, "open DataLogger GUI");
             AH_DataLogger.FrmDataLogger fm = new AH_DataLogger.FrmDataLogger( var.DBServerIP, var.DBName, var.DBUid, var.DBPwd);
             fm.Show();
         }
 
         private void tableToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            log.msg(this, "open DataLogger table");
             AH_DataLogger.FrmTables ft = new AH_DataLogger.FrmTables(var.DBServerIP, var.DBName, var.DBUid, var.DBPwd);
             ft.Show();
         }
@@ -561,7 +562,7 @@ namespace AutoHome
             //################# client region ######################
             foreach (plc p in list_plc)
             {
-                log.msg(this, "make status bar: " + p.ToString());
+                log.msg(this, "make status bar: " + p.ToString() );
                 ToolStripDropDownButton TSDDB = new ToolStripDropDownButton("->" + p.NamePlc, null, null, "->" + p.NamePlc);
                 TSDDB.Tag = p;
                 TSDDB.BackColor = Color.Yellow;
@@ -1031,7 +1032,9 @@ namespace AutoHome
             timer_GetRequestInterval.Tick += new EventHandler(timer_GetRequestInterval_Tick);
 
             TimerUpdateGui.Start();
+            log.msg(this, "TimerUpdateGui.Start()");
             timer_footer_connection_status.Start();
+            log.msg(this, "timer_footer_connection_status.Start()");
 
             if (var.start_timers_at_start)
                 timer_start();
@@ -1040,16 +1043,17 @@ namespace AutoHome
         private void timer_start()
         {
             timer_GetRequestInterval.Start();
-            
+            log.msg(this, "timer_start(): timer_GetRequestInterval.Start()");
         }
         private void timer_stop()
         {
             timer_GetRequestInterval.Stop();
+            log.msg(this, "timer_stop(): timer_GetRequestInterval.Stop()");
         }
         #endregion
 
         //TODO: in eigenen timer auslagern
-        int dbg_count = 10;
+        //int dbg_count = 10;
         /// <summary>
         /// collect all visible controll IDs and send GetRequest @PLC
         /// </summary>
@@ -1060,14 +1064,14 @@ namespace AutoHome
             //********************************************************************************************************************
             //ReadRunningConfig from all aktuators -> send GetRequest (Get_Param) @PLC
             //********************************************************************************************************************
-            dbg_count++;
-            if (dbg_count > 10)
-            {
-                dbg_count = 0;
+            //dbg_count++;
+            //if (dbg_count > 10)
+            //{
+            //    dbg_count = 0;
                 if (list_plc.Any())
                     foreach (plc p in list_plc)
                         p.ReadRunningConfig();
-            }
+            //}
 
 
             if (list_plc.Any())
@@ -1095,7 +1099,7 @@ namespace AutoHome
                 //send GetRequest @PLC (ONLY aktor_type.sensor)
                 //********************************************************************************************************************
                 foreach (plc p in list_plc)
-                    if (p.getClient() != null && p.getClient().state == udp_state.connected)
+                    if (p.getClient() != null && p.getClient().state == udp_state.connected) 
                     {
                         //send get Time request @PLC
                         p.send(Frame.MngData(p.getClient(), DataMngType.GetPlcTime));
