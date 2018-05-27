@@ -103,7 +103,7 @@ namespace cpsLIB
         {
             Client client = new Client(ip, port);  
             ListClients.Add(client);
-            logMsg(new log(LogType.info, "new client: " + ip));
+            logMsg(new log(LogType.info, "new client: " + ip, client));
             QueueRcvFrameToApp.logMsg("[" + client.ToString() + "] make new client");
             return client;
         }

@@ -322,3 +322,4 @@ ASALocalRun/
 *.binlog
 /img
 /AH_RunningStartupConfig
+/mqtt

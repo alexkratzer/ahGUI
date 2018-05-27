@@ -42,6 +42,7 @@
             this.cLB_filter_clients = new System.Windows.Forms.CheckedListBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.footer_TSSL_filtered = new System.Windows.Forms.ToolStripStatusLabel();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dGV_Log)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel_filter.SuspendLayout();
@@ -168,11 +169,21 @@
             this.footer_TSSL_filtered.Size = new System.Drawing.Size(81, 17);
             this.footer_TSSL_filtered.Text = "msg filtered: x";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(587, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(35, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "label1";
+            // 
             // FrmStatusLog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1094, 584);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.panel_filter);
             this.Controls.Add(this.dGV_Log);
@@ -208,5 +219,6 @@
         private System.Windows.Forms.Button button_hide_filter;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel footer_TSSL_filtered;
+        private System.Windows.Forms.Label label1;
     }
 }

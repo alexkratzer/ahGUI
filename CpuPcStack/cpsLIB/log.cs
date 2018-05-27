@@ -11,10 +11,19 @@ namespace cpsLIB {
         private LogType prio;
         private Frame f;
         private string msg;
+        private Client c;
 
         public log(LogType _prio, string _msg)
         {
             this.prio = _prio;
+            this.msg = _msg;
+            this.timestamp = DateTime.Now;
+        }
+
+        public log(LogType _prio, string _msg, Client _c)
+        {
+            this.prio = _prio;
+            this.c = _c;
             this.msg = _msg;
             this.timestamp = DateTime.Now;
         }
@@ -48,6 +57,10 @@ namespace cpsLIB {
         {
             get { return f; }
             set { f = value; }
+        }
+        public Client C {
+            get { return c; }
+            set { c = value; }
         }
         public LogType Prio
         {

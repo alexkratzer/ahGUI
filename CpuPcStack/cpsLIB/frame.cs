@@ -99,7 +99,9 @@ namespace cpsLIB
                     header = new FrameHeader(data, out FramePayloadByte);
                 }
             }
-            catch (Exception) {}
+            catch (Exception e) {
+                System.IO.File.AppendAllText(@"C:\Users\alex\Desktop\DbgAhGUI_frames.txt", "Exp: " + e.Message + Environment.NewLine);
+            }
         }
         #endregion
 
@@ -485,11 +487,9 @@ namespace cpsLIB
         /*public static Int16[] GET_STATE(Int16 index) { return new Int16[] { index, 1 }; }
         public static Int16[] GET_PARAM(int index) { return new Int16[] { Convert.ToInt16(index), 3 }; }
         public static Int16[] SET_STATE(int index, string position, string angle) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(position), Convert.ToInt16(angle), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
-        public static Int16[] SET_STATE(int index, bool state_switch) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(state_switch), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
-        
+        public static Int16[] SET_STATE(int index, bool state_switch) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(state_switch), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }     
          */
-
-
+         
         public static Frame MngData(Client c, DataMngType DMT)
         {
             Frame f = new Frame(c, new Int16[] { (Int16)DMT });
