@@ -57,19 +57,27 @@ namespace AutoHome
         private string _PLC_Name = plc_default_name;
         public string NamePlc
         {
-            get
-            {
-                return _PLC_Name;
-            }
+            get { return _PLC_Name; }
             set { _PLC_Name = value; }
         }
 
+        //subscriptions which topics the plc has to send cyclic
+        private bool _subscribe_ProzessData = false;
+        public bool subscribe_ProzessData
+        {
+            get { return _subscribe_ProzessData; }
+            set { _subscribe_ProzessData = value; }
+        }
+        private bool _subscribe_PlcManagementData = false;
+        public bool subscribe_PlcManagementData
+        {
+            get { return _subscribe_PlcManagementData; }
+            set { _subscribe_PlcManagementData = value; }
+        }
+
         public int new_message_count = 0;
-        //private string plc_hash; //wird zum deserialisieren verwendet um objekte eindeutig zu identifizieren
-
         public List<aktuator> ListAktuator;
-
-        //public int TimeRequestAktuatorStatusInterval = 1000;
+        
         #endregion
 
         #region tmp vars [NonSerialized]
@@ -79,8 +87,8 @@ namespace AutoHome
         private cpsLIB.Client client_udp = null;
 
         //wird als temporäre variable in FrmMain benötigt
-        [NonSerialized]
-        public List<Int16> ListSensorIDs;
+        //[NonSerialized]
+        //public List<Int16> ListSensorIDs;
         [NonSerialized]
         public DateTime clockPlc;
         [NonSerialized]
@@ -107,16 +115,19 @@ namespace AutoHome
             client_udp = new Client(_ip, port.ToString());
             ListAktuator = new List<aktuator>();
         }
-       
+       //region timer disabled
+       /*
         private void initRequestTimer() {
             //log.msg(this, "initRequestTimer: " + NamePlc);
             System.Timers.Timer TimerInitRequest = new System.Timers.Timer();
             TimerInitRequest.Elapsed += new ElapsedEventHandler(OnTimeRequest);
             TimerInitRequest.Interval = var.timer_GetRequestInterval;
             TimerInitRequest.Enabled = true;
+            //################# deswegen dürfte timer nicht laufen....          TimerInitRequest.Start();
         }
 
         //alle aktoren und alle sensoren status abfragen
+        //TODO: aktuell nicht verwendet...
         private void OnTimeRequest(object source, ElapsedEventArgs e) {
 
             //********************************************************************************************************************
@@ -151,10 +162,17 @@ namespace AutoHome
                     }
                 }
         }
-        
-        
+       */ 
+
+        /// <summary>
+        /// send new connect request to PLC
+        /// and establish connection item
+        /// </summary>
+        /// <param name="_cpsNet"></param>
         public void connect(CpsNet _cpsNet)
         {
+            
+
             reconnect_counter++;
             cpsNet = _cpsNet;
             DicSensorVal = new Dictionary<short, float>();
@@ -168,18 +186,26 @@ namespace AutoHome
             }
             else
                 client_udp = cpsNet.newClient(_ip, _port.ToString());
+            
+            client_udp.state = udp_state.connected;
+            Frame f = new Frame(client_udp, new short[] { Convert.ToInt16(subscribe_ProzessData), Convert.ToInt16(subscribe_PlcManagementData) });
+            f.SetHeaderFlag(FrameHeaderFlag.SYNC);
+            
+            send(f);
+        }
 
+        public void SYNC_trigger_watchdog() {
             Frame f = new Frame(client_udp);
             f.SetHeaderFlag(FrameHeaderFlag.SYNC);
             send(f);
-            //initRequestTimer();
-
-            //SendMsg = new Thread(new ThreadStart(initRequestTimer));
-            //SendMsg.IsBackground = true;
-
-            //SendMsg.Start();
         }
 
+        public bool IsConnected() {
+            if (client_udp.state == udp_state.connected)
+                return true;
+            else
+                return false;
+        }
         #endregion
 
         #region functions
@@ -187,6 +213,7 @@ namespace AutoHome
         {
             if (client_udp == null)
                 return false;
+            client_udp.send(f);
             return cpsNet.send(f);
         }
         public void send(FrameHeaderFlag hf, Int16[] data )

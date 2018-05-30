@@ -24,6 +24,8 @@ namespace cpsLIB
 
         [NonSerialized]
         public volatile udp_state state = udp_state.disconnected;
+        [NonSerialized]
+        public volatile bool keepConnectionClose = false;
 
         [NonSerialized]
         public int RcvErrorCounter = 0;
@@ -68,13 +70,14 @@ namespace cpsLIB
         /// </summary>
         /// <param name="cc"></param>
         /// <returns></returns>
+        /*
         public bool IsEqual(Client cc)
         {
             if ((RemoteIp == cc.RemoteIp) && (RemotePort == cc.RemotePort))
                 return true;
             else
                 return false;
-        }
+        }*/
 
         #region udp client
         /// <summary>
@@ -106,7 +109,9 @@ namespace cpsLIB
                     _clientThread.IsBackground = true;
                     _clientThread.Start();
                     return true;
-                } else;
+                } else
+                    ;
+                
                      //"Remote udp_state NOT connected - NO Frame is send");
             }
             catch (Exception e)

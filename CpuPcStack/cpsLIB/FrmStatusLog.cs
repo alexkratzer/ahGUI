@@ -229,21 +229,32 @@ namespace cpsLIB
             ListClients.Add(c);
             cLB_filter_clients.Items.Add(c, true);
         }
-
-        int dbg_counter_no_client = 0;
+        
         private void filterMsg(log _log) {
             CheckedListBox.CheckedItemCollection CC = cLB_filter_clients.CheckedItems;
             bool showMSG = false;
             if (_log.C != null && CC.Contains(_log.C))
                 showMSG = true;
-            else if (_log.F != null && _log.F.client != null && CC.Contains(_log.F.client))
-                showMSG = true;
+            else if (_log.F != null && _log.F.client != null) {
+                List<Client> ListClient = cLB_filter_clients.CheckedItems.Cast<Client>().ToList();
+
+                foreach (Client c in ListClient)  {
+                    if (_log.F.client.RemoteIp == c.RemoteIp)
+                    {
+                        showMSG = true;
+                        break;
+                    }
+                }
+            }      
             else
-                dbg_counter_no_client++;
+            {
+                //no client can be found... must be a server msg...
+                _log.Msg = "SERVER MSG [" + _log.Msg + "]";
+                showMSG = true;
+            }
 
             if (showMSG && !cLB_msgType.GetItemChecked((int)_log.Prio))
-                showMSG = false;
-
+            showMSG = false;
 
             if (showMSG) {
                 shown_messages++;
@@ -254,8 +265,7 @@ namespace cpsLIB
             }
             else
                 filtered_messages++;
-
-            label1.Text = "no client: " + dbg_counter_no_client.ToString();
+            
         }
 
        

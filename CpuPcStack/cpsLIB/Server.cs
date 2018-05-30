@@ -55,7 +55,6 @@ namespace cpsLIB
         {
             ////// TODO ########################################################################### IBS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             //Thread.Sleep(500); //Verzögerung: Beim Tool starten wird erste logmeldung sporadisch zu früh an gui gesendet
-
             try
             {
                 listener = new UdpClient(_srvPort);

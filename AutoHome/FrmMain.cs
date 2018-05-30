@@ -11,6 +11,9 @@ using System.Runtime.InteropServices;
 
 namespace AutoHome
 {
+    //####################################
+    // timer_GetRequestInterval.Start()
+    // ENABLE
     public enum aktor_type { undef, jalousie, light, heater, sensor }
     public enum msg_type { undef, info, warning, error }
 
@@ -28,7 +31,7 @@ namespace AutoHome
 
         #region init / connect / close
         public FrmMain()
-        {
+        { 
             InitializeComponent();
             log.msg(this, "### start AutoHome GUI " + tool_version + " ###");
 
@@ -70,6 +73,7 @@ namespace AutoHome
                     p.connect(CpsNet);
             }
             log.msg(this, "initCps -> done");
+            log.msg(this, "connect from initCPS");
         }
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -677,7 +681,10 @@ namespace AutoHome
         {
             //try to connect (send SYNC frame) with all projected plc´s
             foreach (plc p in list_plc)
+            {
                 p.connect(CpsNet);
+                log.msg(this, "connect from TSSL: " + p.ToString());
+            }
         }
         //private void connectAllClientsToolStripMenuItem_Click(object sender, EventArgs e)
         //{
@@ -1052,28 +1059,35 @@ namespace AutoHome
         }
         #endregion
 
-        //TODO: in eigenen timer auslagern
-        //int dbg_count = 10;
+
         /// <summary>
-        /// collect all visible controll IDs and send GetRequest @PLC
+        /// TODO: not used, plc send all data as long as connection is established
+        /// what it does: collect all visible controll IDs and send GetRequest @PLC
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         void timer_GetRequestInterval_Tick(object sender, EventArgs e)
         {
+            //####################################################
+            //TODO: use seperate watchdog timer or rename this one
+            //################## watchdog ########################
+            if (list_plc.Any())
+                foreach (plc p in list_plc)
+                    if (p.IsConnected())
+                        p.SYNC_trigger_watchdog();
+
+
             //********************************************************************************************************************
             //ReadRunningConfig from all aktuators -> send GetRequest (Get_Param) @PLC
             //********************************************************************************************************************
-            //dbg_count++;
-            //if (dbg_count > 10)
-            //{
-            //    dbg_count = 0;
+
+            /*
                 if (list_plc.Any())
                     foreach (plc p in list_plc)
                         p.ReadRunningConfig();
-            //}
+            */
 
-
+            /*
             if (list_plc.Any())
             {
                 //********************************************************************************************************************
@@ -1111,8 +1125,8 @@ namespace AutoHome
                             p.send(FrameHeaderFlag.MngData, p.ListSensorIDs.ToArray());
                         }
                     }
-            }
-            
+            }*/
+
         }
 
         /// <summary>
@@ -1142,6 +1156,7 @@ namespace AutoHome
                     if (state == udp_state.disconnected && var.reconnect_on_connection_lose && 
                         (((plc)p.Tag).reconnect_counter <= var.reconnect_on_connection_lose_count)) {
                         ((plc)p.Tag).connect(CpsNet);
+                        log.msg(this, "connect because of auto-reconnect");
                     }
                 }
             }

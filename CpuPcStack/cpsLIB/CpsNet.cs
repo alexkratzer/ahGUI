@@ -14,12 +14,13 @@ namespace cpsLIB
     public enum udp_state { connected, disconnected, SendError }
     public class CpsNet
     {
-        //flags to control all connections
-        public Int16 MaxSYNCResendTrys = 30; //Anzahl der erlaubten Wiederholungen bei SYNC Telegram
-        public Int16 MaxRcvErrorCounter = 200; //Anzahl der nicht beantworteten requests bis UDPstate auf disconnected gesetzt wird
+        //################ global flags to control all connections ##############################
+        public Int16 MaxSYNCResendTrys = 1; //Anzahl der erlaubten Wiederholungen bei SYNC Telegram
+        public Int16 MaxRcvErrorCounter = 2; //Anzahl der nicht beantworteten requests bis UDPstate auf disconnected gesetzt wird
         public Int16 WATCHDOG_WORK = 5000; //Erlaubte Zeitdauer in ms bis PLC geantwortet haben muss
-        public bool SendFramesCallback = false; //es werden die "zu sendenden frames" als callback zurückgeliefert
+        public bool SendFramesCallback = true; //es werden die "zu sendenden frames" als callback zurückgeliefert
         public bool SendOnlyIfConnected = true; //TRUE => ohne Verbindungsaufbau über SYNC werden keine Frames gesendet (oder udp_state!=connected)
+
 
         //private vars
         private IcpsLIB QueueRcvFrameToApp; //API from calling main frm
@@ -228,7 +229,6 @@ namespace cpsLIB
                     foreach (Client cs in ListClients)
                         if (cs.RemoteIp == f.client.RemoteIp)
                         { //hier wichtig das nur die ip verglichen wird. port ist unterschiedlich
-                            cs.state = udp_state.connected;
                             cs.RcvErrorCounter = 0; //reset error counter
                             QueueRcvFrameToApp.interprete_frame(f);
                         }
@@ -249,8 +249,8 @@ namespace cpsLIB
                 else
                     logMsg(new log(LogType.error, "TryGetValue() from _fstack == FALSE ", f));
             }
-            else
-                logMsg(new log(LogType.warning, "received udp frame without request", f));
+            //else
+                //logMsg(new log(LogType.warning, "received udp frame without request", f));
 
             //logMsg("[- put received frame in list: " + f.ToString());
             //put received frame in list 
@@ -357,11 +357,13 @@ namespace cpsLIB
                                 }
                                 else
                                 {
+                                    dicF.Value.client.state = udp_state.disconnected;
                                     dicF.Value.client.RcvErrorCounter++;
                                     logMsg(new log(LogType.error, "stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")", dicF.Value));
                                     if(!takeFrameFromStack(dicF.Key))
                                             logMsg(new log(LogType.error, "ERROR: takeFrameFromStack()", dicF.Value));
                                     QueueRcvFrameToApp.logMsg("[" + dicF.Value.client.ToString() + "] stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")");
+
                                 }
                             }
                             else

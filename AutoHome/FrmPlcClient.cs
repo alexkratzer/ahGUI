@@ -23,6 +23,8 @@ namespace AutoHome
             init_timer();
 
             comboBox_headerFlag.DataSource = Enum.GetValues(typeof(FrameHeaderFlag));
+            checkBox_subscribeProzessData.Checked = _plc.subscribe_ProzessData;
+            checkBox_subscribe_PlcManagementData.Checked = _plc.subscribe_PlcManagementData;
         }
         #region update gui timer
         System.Windows.Forms.Timer TimerUpdateGui;
@@ -60,6 +62,7 @@ namespace AutoHome
         private void button_connect_Click(object sender, EventArgs e)
         {
             _plc.connect(_cpsNet);
+            log.msg(this, "button connect at plcClient");
         }
 
         private void button_status_Click(object sender, EventArgs e)
@@ -121,6 +124,30 @@ namespace AutoHome
                 panel_IOdata.Visible = true;
             else
                 panel_IOdata.Visible = false;
+        }
+
+        private void button_send_get_request_Click(object sender, EventArgs e)
+        {
+            _plc.ReadRunningConfig();
+        }
+
+        private void checkBox_subscribeProzessData_CheckedChanged(object sender, EventArgs e)
+        {
+            _plc.subscribe_ProzessData = checkBox_subscribeProzessData.Checked;
+        }
+
+        private void checkBox_subscribe_PlcManagementData_CheckedChanged(object sender, EventArgs e)
+        {
+            _plc.subscribe_PlcManagementData = checkBox_subscribe_PlcManagementData.Checked;
+        }
+
+        private void button_disconnect_Click(object sender, EventArgs e)
+        {
+            Frame f = new Frame(_plc.getClient());
+            f.SetHeaderFlag(FrameHeaderFlag.SYNC);
+            f.SetHeaderFlag(FrameHeaderFlag.LogMessage);  //at this context -> disconnect plc
+            _plc.send(f);
+            _plc.getClient().state = udp_state.disconnected;
         }
     }
     
