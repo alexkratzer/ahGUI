@@ -65,21 +65,23 @@ namespace AutoHome
             rcvQueue = new QueueRcvFromCps(this, list_plc);
             CpsNet = new cpsLIB.CpsNet(rcvQueue, var.CpsNet_FrmStatusLog);
             CpsNet.serverSTART(var.CpsServerPort); 
-             
-            if (var.connect_to_plc_at_start)
-            {
+
+            foreach (plc p in list_plc){
+                p.InitCps(CpsNet);
                 //try to connect (send SYNC frame) with all projected plc´s
-                foreach (plc p in list_plc)
-                    p.connect(CpsNet);
+                if (var.connect_to_plc_at_start)
+                    p.connect();
             }
+
+            
             log.msg(this, "initCps -> done");
-            log.msg(this, "connect from initCPS");
         }
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
             {
                 var.LastPlatformView = comboBox_platform.SelectedIndex;
+
                 //if(FrmStatusLog!=null)
                 //var.LastShowFormFrameLog 
                 timer_stop();
@@ -539,8 +541,7 @@ namespace AutoHome
             MessageBox.Show(s, "Log Msg: " + ListLogMsg.Count);
             */
             FrmLog fl = new FrmLog(log.LogList);
-            fl.ShowDialog();
-
+            fl.Show();
         }
         #endregion 
 
@@ -682,7 +683,7 @@ namespace AutoHome
             //try to connect (send SYNC frame) with all projected plc´s
             foreach (plc p in list_plc)
             {
-                p.connect(CpsNet);
+                p.connect();
                 log.msg(this, "connect from TSSL: " + p.ToString());
             }
         }
@@ -1069,13 +1070,15 @@ namespace AutoHome
         void timer_GetRequestInterval_Tick(object sender, EventArgs e)
         {
             //####################################################
-            //TODO: use seperate watchdog timer or rename this one
+            //TODO: MOVE WATCHDOG TO CLIENT
             //################## watchdog ########################
+            /*
             if (list_plc.Any())
                 foreach (plc p in list_plc)
                     if (p.IsConnected())
                         p.SYNC_trigger_watchdog();
 
+            */
 
             //********************************************************************************************************************
             //ReadRunningConfig from all aktuators -> send GetRequest (Get_Param) @PLC
@@ -1142,9 +1145,9 @@ namespace AutoHome
 
             foreach (ToolStripDropDownButton p in statusStrip_bottom.Items)
             {
-                if (((plc)p.Tag) != null) //TODO Server Button nicht beachten, dann abfrage auf !=null überflüssig
+                if (((plc)p.Tag) != null && ((plc)p.Tag).getClient() != null) //TODO Server Button nicht beachten, dann abfrage auf !=null überflüssig
                 {
-                    udp_state state = ((plc)p.Tag).getClient().state;
+                    udp_state state = ((plc)p.Tag).ConnectionState;
                     if (state == udp_state.connected && p.BackColor != Color.LightGreen)
                         p.BackColor = Color.LightGreen;
                     else if (state == udp_state.disconnected && p.BackColor != Color.Yellow)
@@ -1153,11 +1156,11 @@ namespace AutoHome
                         p.BackColor = Color.Red;
 
                     //wenn verbindung disconnected automatischer reconnect
-                    if (state == udp_state.disconnected && var.reconnect_on_connection_lose && 
-                        (((plc)p.Tag).reconnect_counter <= var.reconnect_on_connection_lose_count)) {
-                        ((plc)p.Tag).connect(CpsNet);
-                        log.msg(this, "connect because of auto-reconnect");
-                    }
+                    //if (state == udp_state.disconnected && var.reconnect_on_connection_lose && 
+                    //    (((plc)p.Tag).reconnect_counter <= var.reconnect_on_connection_lose_count)) {
+                    //    ((plc)p.Tag).connect();
+                    //    log.msg(this, "connect because of auto-reconnect");
+                    //}
                 }
             }
         }

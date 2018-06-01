@@ -144,6 +144,20 @@ namespace AutoHome
             set { _ValueStateRunning = value; }
         }
 
+        [NonSerialized]
+        private Int16[] _plcProcessDatapoint;
+        public Int16[] plcProcessDatapoint
+        {
+            get
+            {
+                if (_plcProcessDatapoint == null)
+                    return new Int16[0];
+                else
+                    return _plcProcessDatapoint;
+            }
+            set { _plcProcessDatapoint = value; }
+        }
+
         //TODO: wahrscheinlich kann referenz auf plc inzwischen mit serialisert werden -> testen mit vorher Roaming speichern
         [NonSerialized]//nicht serialisieren da sonst keine referenz auf das aktuelle objekt vorhanden ist sondern mit alten kopien gearbeitet wird
         public plc _plc;//wird in var.deserialice gesetzt

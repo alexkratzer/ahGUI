@@ -16,7 +16,6 @@ namespace AutoHome
 
     public partial class FrmMain_controlDialog : Form
     {
-        
         string ip;
         aktuator _akt;
         private UserControl ucdialog= null;
@@ -89,6 +88,15 @@ namespace AutoHome
         {
             try
             {
+                if (_akt.plcProcessDatapoint.Length > 1)
+                {
+                    dynamic d = ucdialog;
+                    d.LoadData(_akt.plcProcessDatapoint);
+                    this.Text = _akt.Name + " [" + _akt.lastUpdateTimestamp.ToString("HH:mm:ss") + "]";
+                }
+                else
+                    log.msg(this, "timer_refresh_control_Tick() with LoadData < 1");
+                /* OLD PART
                 if (_akt.ConfigAktuatorValuesRunning.Length > 1)
                 {
                     dynamic d = ucdialog;
@@ -97,6 +105,7 @@ namespace AutoHome
                 }
                 else
                     log.msg(this, "timer_refresh_control_Tick() with LoadData < 1");
+                    */
             }
             catch (Exception ex)
             {

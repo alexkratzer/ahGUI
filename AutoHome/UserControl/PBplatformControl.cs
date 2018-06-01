@@ -88,12 +88,20 @@ namespace AutoHome
             switch (_platform_control._aktuator.AktorType)
             {
                 case aktor_type.light:
-                    if (Convert.ToBoolean(value[2]))
+                    if (Convert.ToBoolean(value[3]))
                         Image = new Bitmap(AutoHome.Properties.Resources.img_candle_on);
                     //Image = System.Drawing.Bitmap.FromFile(var.img_candle_on);
                     else
                         Image = new Bitmap(Properties.Resources.img_candle_off);
                     break;
+                /* OLD
+                if (Convert.ToBoolean(value[2]))
+                    Image = new Bitmap(AutoHome.Properties.Resources.img_candle_on);
+                //Image = System.Drawing.Bitmap.FromFile(var.img_candle_on);
+                else
+                    Image = new Bitmap(Properties.Resources.img_candle_off);
+                break;
+                */
                 case aktor_type.jalousie:
                     
                         if (value[2] >= 0 && value[2] < 33)
@@ -130,10 +138,6 @@ namespace AutoHome
             }
 
             lastValue = value;
-            //lastFrame = f;
         }
-
-
     }
-
 }

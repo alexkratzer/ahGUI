@@ -20,7 +20,7 @@ namespace cpsLIB
         public Int16 WATCHDOG_WORK = 5000; //Erlaubte Zeitdauer in ms bis PLC geantwortet haben muss
         public bool SendFramesCallback = true; //es werden die "zu sendenden frames" als callback zurückgeliefert
         public bool SendOnlyIfConnected = true; //TRUE => ohne Verbindungsaufbau über SYNC werden keine Frames gesendet (oder udp_state!=connected)
-
+        public Int16 PLC_WATCHDOG_TriggerTime = 5000; //Cycletime to send watchdog trigger frames to PLC
 
         //private vars
         private IcpsLIB QueueRcvFrameToApp; //API from calling main frm
@@ -45,6 +45,7 @@ namespace cpsLIB
         public TimeSpan TimeRcvAnswerMin = TimeSpan.MaxValue;
         private TimeSpan TimeRcvAnswerMax = TimeSpan.MinValue;
         //private TimeSpan TimeRcvAvg = TimeSpan.Zero;
+        
 
         //Constructor
         //public CpsNet(List<Client> _ListClientsExternal, bool ModeDbg = false)
@@ -62,6 +63,7 @@ namespace cpsLIB
             LFrameRcv = new System.Collections.Concurrent.ConcurrentDictionary<Int64, Frame>();
             
             StackWorker();
+            WatchdogTrigger();
 
             if (ModeDbg)
             {
@@ -98,7 +100,36 @@ namespace cpsLIB
         }
 
 
-    
+
+        #region send_watchdog
+        Thread ThreadWatchdogTrigger;
+        private void WatchdogTrigger()
+        {
+            ThreadWatchdogTrigger = new Thread(new ThreadStart(Watchdog_fkt));
+            ThreadWatchdogTrigger.IsBackground = true;
+            ThreadWatchdogTrigger.Start();
+        }
+
+        /// <summary>
+        /// send cyclic watchdog trigger frame to connected plc
+        /// </summary>
+        private volatile bool WatchdogWork = true;
+        private void Watchdog_fkt()
+        {
+            while (WatchdogWork)
+            {
+                if (ListClients.Any())
+                    foreach (Client c in ListClients)
+                        if (c.state.Equals(udp_state.connected)) {
+                            Frame f = new Frame(c, new short[] { 3 });
+                            f.SetHeaderFlag(FrameHeaderFlag.SYNC);
+                            send(f);
+                        }
+                Thread.Sleep(PLC_WATCHDOG_TriggerTime);
+            }
+        }
+        #endregion
+
         #region client
         public Client newClient(string ip, string port)
         {
@@ -109,24 +140,17 @@ namespace cpsLIB
             return client;
         }
 
-        
-//globale sendefunktion für alle clients
+        /// global send funktion for all clients.
+        /// this way all frames are logged at this queu
         public bool send(Frame f)
         {
-            //send_SYNC einbauen
-            //    foreach (CpsClient listCC in ListClients)
-            //    {
-            //        if (listCC.IsEqual(cc))
-            //        {
-            //            Frame f = new Frame(listCC);
-            //            f.SetHeaderFlag(FrameHeaderFlag.SYNC);
-            //            send(f);
-            //            listCC.state = udp_state.unknown;
-            //            return;
-            //        }
-            //    }
-
-            if (CheckIfConnected(f)) {
+            if (CheckIfConnected(f))
+            {
+                logMsg(new log(LogType.info, "-> send frame ", f));
+                TotalFramesSend++;
+                f.LastSendDateTime = DateTime.Now;
+                f.client.send_from_CpsNet(f);
+                
                 //der App wird mitgeteilt das dieses frame verschickt wurde
                 //if (SendFramesCallback)
                 //    _FrmMain.interprete_frame(f);
@@ -138,22 +162,15 @@ namespace cpsLIB
                 else
                 {
                     if (_fstack.TryAdd(f.GetKey(), f))
-                    {
-                        logMsg(new log(LogType.info, "-> send frame ", f));
-                        TotalFramesSend++;
-                        f.LastSendDateTime = DateTime.Now;
-                        f.client.send(f);
                         return true;
-                    }
                     else
                         //logMsg("ERROR add frame to _fstack");
                         logMsg(new log(LogType.error, "ERROR add frame @ _fstack", f));
                 }
             }
             else
-                ;// logMsg(new log(prio.error, "Remote udp_state NOT connected - NO Frame is send", f));
+                logMsg(new log(LogType.error, "Remote udp_state NOT connected - NO Frame is send", f));
             return false;
-
             
         }
         private bool CheckIfConnected(Frame f) {
@@ -164,39 +181,7 @@ namespace cpsLIB
                     return true;
             return false;
         }
-
-
-        //TODO: funktionalität von send_SYNC in send einbauen
-       /// <summary>
-        /// sends sync frame to plc
-        /// </summary>
-        /// <param name="cc">CpsClient (ip/port)</param>
-        /// <returns>ListConnection.Count</returns>
-        //public void send_SYNC(CpsClient cc)
-        //{
-        //    foreach (CpsClient listCC in ListClients)
-        //    {
-        //        if (listCC.IsEqual(cc))
-        //        {
-        //            Frame f = new Frame(listCC);
-        //            f.SetHeaderFlag(FrameHeaderFlag.SYNC);
-        //            send(f);
-        //            listCC.state = udp_state.unknown;
-        //            return;
-        //        }
-        //    }
-
-        //    //no connection found -> make new one
-        //    ListClients.Add(cc);
-        //    //send_SYNC(cc); //rekursiever aufruf -> nochmal drüber schlafen
-        //    Frame fe = new Frame(cc);
-        //    fe.SetHeaderFlag(FrameHeaderFlag.SYNC);
-        //    fe.ChangeState(FrameWorkingState.warning, "no connection found -> make new one");
-        //    send(fe);
-        //    cc.state = udp_state.unknown;
-        //}
-
-
+        
         #endregion
 
         #region server
@@ -219,37 +204,36 @@ namespace cpsLIB
         public void receive(Frame f)
         {
             logMsg(new log(LogType.info,"<- receive frame", f));
-            
+
             //remove frame from "InWork Jobs" 
-            if (!_fstack.IsEmpty)
-            {
-                Frame frameStack;
-                if (_fstack.TryGetValue(f.GetKey(), out frameStack))
-                {
-                    foreach (Client cs in ListClients)
-                        if (cs.RemoteIp == f.client.RemoteIp)
-                        { //hier wichtig das nur die ip verglichen wird. port ist unterschiedlich
-                            cs.RcvErrorCounter = 0; //reset error counter
-                            QueueRcvFrameToApp.interprete_frame(f);
-                        }
+            Frame frameStack;
+            if (!_fstack.IsEmpty && _fstack.TryGetValue(f.GetKey(), out frameStack))
+            { 
+                //send/receive calc time min/max
+                f.TimeRcvAnswer = f.TimeCreated - frameStack.TimeCreated;
+                if (f.TimeRcvAnswer > TimeRcvAnswerMax)
+                    TimeRcvAnswerMax = f.TimeRcvAnswer;
+                if (f.TimeRcvAnswer < TimeRcvAnswerMin)
+                    TimeRcvAnswerMin = f.TimeRcvAnswer;
 
-                    TotalFramesFinished++;
-
-                    //send/receive calc time min/max
-                    f.TimeRcvAnswer = f.TimeCreated - frameStack.TimeCreated;
-                    if (f.TimeRcvAnswer > TimeRcvAnswerMax)
-                        TimeRcvAnswerMax = f.TimeRcvAnswer;
-                    if (f.TimeRcvAnswer < TimeRcvAnswerMin)
-                        TimeRcvAnswerMin = f.TimeRcvAnswer;
-
-                    takeFrameFromStack(frameStack.GetKey());
-                    //if (_fstack.TryRemove(key, out f))
-                    //    return true;
-                }
-                else
-                    logMsg(new log(LogType.error, "TryGetValue() from _fstack == FALSE ", f));
+                takeFrameFromStack(frameStack.GetKey());
+                //if (_fstack.TryRemove(key, out f))
+                //    return true;
             }
             //else
+            //    logMsg(new log(LogType.error, "Frame not on SendStack ", f));
+            // NO ERROR -> since e.g. plc send IO data when subscribet
+
+            //prozess received frame 
+            TotalFramesFinished++;
+            foreach (Client cs in ListClients)
+                if (cs.RemoteIp == f.client.RemoteIp)
+                { //hier wichtig das nur die ip verglichen wird. port ist unterschiedlich
+                    cs.RcvErrorCounter = 0; //reset error counter
+                    QueueRcvFrameToApp.interprete_frame(f);
+                    break; //client is found, continue 
+                }
+            
                 //logMsg(new log(LogType.warning, "received udp frame without request", f));
 
             //logMsg("[- put received frame in list: " + f.ToString());
@@ -345,7 +329,16 @@ namespace cpsLIB
                     {
                         if (dicF.Value.LastSendDateTime.AddMilliseconds(WATCHDOG_WORK) < DateTime.Now)
                         {
+                            dicF.Value.client.state = udp_state.disconnected;
+                            dicF.Value.client.RcvErrorCounter++;
+                            logMsg(new log(LogType.error, "stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")", dicF.Value));
+                            if (!takeFrameFromStack(dicF.Key))
+                                logMsg(new log(LogType.error, "ERROR: takeFrameFromStack()", dicF.Value));
+                            QueueRcvFrameToApp.logMsg("[" + dicF.Value.client.ToString() + "] stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")");
+
                             //hit Watchdog
+                            //TODO: not realy necessary.... mayby remove this code / the complete stack buffer
+                            /*
                             if (dicF.Value.GetHeaderFlag(FrameHeaderFlag.SYNC))
                             {
                                 if (dicF.Value.SendTrys < MaxSYNCResendTrys)
@@ -353,7 +346,7 @@ namespace cpsLIB
                                     dicF.Value.SendTrys++;
                                     dicF.Value.LastSendDateTime = DateTime.Now;
                                     logMsg(new log(LogType.warning, "repeat send", dicF.Value));
-                                    dicF.Value.client.send(dicF.Value); //TODO: return bool auswerten
+                                    dicF.Value.client.send_from_CpsNet(dicF.Value); //TODO: return bool auswerten
                                 }
                                 else
                                 {
@@ -373,7 +366,8 @@ namespace cpsLIB
                                 if (!takeFrameFromStack(dicF.Key))
                                     logMsg(new log(LogType.error, "ERROR: takeFrameFromStack()", dicF.Value));
                             }
-
+                            */
+                            //TODO also not realy necessarry
                             if (dicF.Value.client.RcvErrorCounter > MaxRcvErrorCounter)
                             {
                                 QueueRcvFrameToApp.logMsg("["+ dicF.Value.client.ToString() + "] client disconnected because no answer to request");
@@ -390,6 +384,15 @@ namespace cpsLIB
         #region cleanup
         public void cleanup() {
             StackWorkerWork = false;
+            WatchdogWork = false;
+            if (ListClients.Any())
+                foreach (Client c in ListClients)
+                    if (c.state.Equals(udp_state.connected))
+                    {
+                        Frame f = new Frame(c, new short[] { (short)HEADER_SYNC.DISCONNECT });
+                        f.SetHeaderFlag(FrameHeaderFlag.SYNC);
+                        send(f);
+                    }
             serverSTOP();
             Thread.Sleep(100);
         }

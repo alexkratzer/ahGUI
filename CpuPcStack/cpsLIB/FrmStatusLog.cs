@@ -206,7 +206,7 @@ namespace cpsLIB
  
         private void logMsg(log _log)
         {
-            footer_TSSL_filtered.Text = "msg total: "+ all_messages+" / filtered: " + filtered_messages + " / shown: " + shown_messages;
+            filterstatusToolStripMenuItem.Text = "msg total: "+ all_messages+" / filtered: " + filtered_messages + " / shown: " + shown_messages;
             //store all log message in ListLogBackend
             ListLogBackend.Add(_log);
             all_messages++;

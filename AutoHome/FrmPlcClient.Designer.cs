@@ -50,9 +50,16 @@
             this.label_display_reconnect_counter = new System.Windows.Forms.Label();
             this.button_send_get_request = new System.Windows.Forms.Button();
             this.groupBox_subscribe = new System.Windows.Forms.GroupBox();
-            this.checkBox_subscribeProzessData = new System.Windows.Forms.CheckBox();
+            this.button_subscribe_topics = new System.Windows.Forms.Button();
             this.checkBox_subscribe_PlcManagementData = new System.Windows.Forms.CheckBox();
+            this.checkBox_subscribeProzessData = new System.Windows.Forms.CheckBox();
             this.button_disconnect = new System.Windows.Forms.Button();
+            this.textBox_prozessDataTopics = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox_prozessDataCycle = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBox_ManagementDataCycle = new System.Windows.Forms.TextBox();
             this.panel_sendMsg.SuspendLayout();
             this.panel_IOdata.SuspendLayout();
             this.groupBox_subscribe.SuspendLayout();
@@ -192,7 +199,7 @@
             this.panel_sendMsg.Controls.Add(this.label_CpsStatus);
             this.panel_sendMsg.Location = new System.Drawing.Point(12, 185);
             this.panel_sendMsg.Name = "panel_sendMsg";
-            this.panel_sendMsg.Size = new System.Drawing.Size(274, 131);
+            this.panel_sendMsg.Size = new System.Drawing.Size(501, 131);
             this.panel_sendMsg.TabIndex = 14;
             // 
             // panel_IOdata
@@ -259,14 +266,42 @@
             // 
             // groupBox_subscribe
             // 
+            this.groupBox_subscribe.Controls.Add(this.label4);
+            this.groupBox_subscribe.Controls.Add(this.textBox_ManagementDataCycle);
+            this.groupBox_subscribe.Controls.Add(this.label3);
+            this.groupBox_subscribe.Controls.Add(this.textBox_prozessDataCycle);
+            this.groupBox_subscribe.Controls.Add(this.label2);
+            this.groupBox_subscribe.Controls.Add(this.textBox_prozessDataTopics);
+            this.groupBox_subscribe.Controls.Add(this.button_subscribe_topics);
             this.groupBox_subscribe.Controls.Add(this.checkBox_subscribe_PlcManagementData);
             this.groupBox_subscribe.Controls.Add(this.checkBox_subscribeProzessData);
             this.groupBox_subscribe.Location = new System.Drawing.Point(312, 23);
             this.groupBox_subscribe.Name = "groupBox_subscribe";
-            this.groupBox_subscribe.Size = new System.Drawing.Size(201, 156);
+            this.groupBox_subscribe.Size = new System.Drawing.Size(277, 156);
             this.groupBox_subscribe.TabIndex = 18;
             this.groupBox_subscribe.TabStop = false;
             this.groupBox_subscribe.Text = "subscribe";
+            // 
+            // button_subscribe_topics
+            // 
+            this.button_subscribe_topics.Location = new System.Drawing.Point(6, 127);
+            this.button_subscribe_topics.Name = "button_subscribe_topics";
+            this.button_subscribe_topics.Size = new System.Drawing.Size(175, 23);
+            this.button_subscribe_topics.TabIndex = 20;
+            this.button_subscribe_topics.Text = "subscribe topics";
+            this.button_subscribe_topics.UseVisualStyleBackColor = true;
+            this.button_subscribe_topics.Click += new System.EventHandler(this.button_subscribe_topics_Click);
+            // 
+            // checkBox_subscribe_PlcManagementData
+            // 
+            this.checkBox_subscribe_PlcManagementData.AutoSize = true;
+            this.checkBox_subscribe_PlcManagementData.Location = new System.Drawing.Point(16, 42);
+            this.checkBox_subscribe_PlcManagementData.Name = "checkBox_subscribe_PlcManagementData";
+            this.checkBox_subscribe_PlcManagementData.Size = new System.Drawing.Size(126, 17);
+            this.checkBox_subscribe_PlcManagementData.TabIndex = 1;
+            this.checkBox_subscribe_PlcManagementData.Text = "PlcManagementData";
+            this.checkBox_subscribe_PlcManagementData.UseVisualStyleBackColor = true;
+            this.checkBox_subscribe_PlcManagementData.CheckedChanged += new System.EventHandler(this.checkBox_subscribe_PlcManagementData_CheckedChanged);
             // 
             // checkBox_subscribeProzessData
             // 
@@ -279,17 +314,6 @@
             this.checkBox_subscribeProzessData.UseVisualStyleBackColor = true;
             this.checkBox_subscribeProzessData.CheckedChanged += new System.EventHandler(this.checkBox_subscribeProzessData_CheckedChanged);
             // 
-            // checkBox_subscribe_PlcManagementData
-            // 
-            this.checkBox_subscribe_PlcManagementData.AutoSize = true;
-            this.checkBox_subscribe_PlcManagementData.Location = new System.Drawing.Point(16, 42);
-            this.checkBox_subscribe_PlcManagementData.Name = "checkBox_subscribe_PlcManagementData";
-            this.checkBox_subscribe_PlcManagementData.Size = new System.Drawing.Size(86, 17);
-            this.checkBox_subscribe_PlcManagementData.TabIndex = 1;
-            this.checkBox_subscribe_PlcManagementData.Text = "ProzessData";
-            this.checkBox_subscribe_PlcManagementData.UseVisualStyleBackColor = true;
-            this.checkBox_subscribe_PlcManagementData.CheckedChanged += new System.EventHandler(this.checkBox_subscribe_PlcManagementData_CheckedChanged);
-            // 
             // button_disconnect
             // 
             this.button_disconnect.Location = new System.Drawing.Point(111, 156);
@@ -300,11 +324,62 @@
             this.button_disconnect.UseVisualStyleBackColor = true;
             this.button_disconnect.Click += new System.EventHandler(this.button_disconnect_Click);
             // 
+            // textBox_prozessDataTopics
+            // 
+            this.textBox_prozessDataTopics.Location = new System.Drawing.Point(108, 16);
+            this.textBox_prozessDataTopics.Name = "textBox_prozessDataTopics";
+            this.textBox_prozessDataTopics.Size = new System.Drawing.Size(34, 20);
+            this.textBox_prozessDataTopics.TabIndex = 21;
+            this.textBox_prozessDataTopics.Text = "0";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(146, 19);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(35, 13);
+            this.label2.TabIndex = 22;
+            this.label2.Text = "topics";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(225, 20);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(40, 13);
+            this.label3.TabIndex = 24;
+            this.label3.Text = "s cycle";
+            // 
+            // textBox_prozessDataCycle
+            // 
+            this.textBox_prozessDataCycle.Location = new System.Drawing.Point(187, 17);
+            this.textBox_prozessDataCycle.Name = "textBox_prozessDataCycle";
+            this.textBox_prozessDataCycle.Size = new System.Drawing.Size(34, 20);
+            this.textBox_prozessDataCycle.TabIndex = 23;
+            this.textBox_prozessDataCycle.Text = "10";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(225, 43);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(40, 13);
+            this.label4.TabIndex = 26;
+            this.label4.Text = "s cycle";
+            // 
+            // textBox_ManagementDataCycle
+            // 
+            this.textBox_ManagementDataCycle.Location = new System.Drawing.Point(187, 40);
+            this.textBox_ManagementDataCycle.Name = "textBox_ManagementDataCycle";
+            this.textBox_ManagementDataCycle.Size = new System.Drawing.Size(34, 20);
+            this.textBox_ManagementDataCycle.TabIndex = 25;
+            this.textBox_ManagementDataCycle.Text = "5";
+            // 
             // FrmPlcClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(528, 328);
+            this.ClientSize = new System.Drawing.Size(637, 328);
             this.Controls.Add(this.button_disconnect);
             this.Controls.Add(this.groupBox_subscribe);
             this.Controls.Add(this.button_send_get_request);
@@ -361,5 +436,12 @@
         private System.Windows.Forms.CheckBox checkBox_subscribeProzessData;
         private System.Windows.Forms.CheckBox checkBox_subscribe_PlcManagementData;
         private System.Windows.Forms.Button button_disconnect;
+        private System.Windows.Forms.Button button_subscribe_topics;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox textBox_prozessDataTopics;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox textBox_ManagementDataCycle;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox_prozessDataCycle;
     }
 }

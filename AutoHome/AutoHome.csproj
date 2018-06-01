@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="aktuator.cs" />
     <Compile Include="aktuator_control.cs" />
+    <Compile Include="akt_DataPoint.cs" />
     <Compile Include="floor_plan.cs" />
     <Compile Include="FrmLog.cs">
       <SubType>Form</SubType>

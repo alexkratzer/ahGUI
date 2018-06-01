@@ -25,6 +25,7 @@ namespace AutoHome
             comboBox_headerFlag.DataSource = Enum.GetValues(typeof(FrameHeaderFlag));
             checkBox_subscribeProzessData.Checked = _plc.subscribe_ProzessData;
             checkBox_subscribe_PlcManagementData.Checked = _plc.subscribe_PlcManagementData;
+            textBox_prozessDataTopics.Text = _plc.ProzessDataTopics.ToString();
         }
         #region update gui timer
         System.Windows.Forms.Timer TimerUpdateGui;
@@ -36,8 +37,8 @@ namespace AutoHome
             TimerUpdateGui.Start();
         }
         private void UpdateGui_tick(object sender, EventArgs e) {
-            
-            label_CpsStatus.Text = _plc.getClient().GetStatus();
+            if(_plc.getClient()!=null)
+                label_CpsStatus.Text = _plc.getClient().GetStatus();
             label_plc_time.Text = _plc.clockPlc.ToString();
             label_time_difference.Text = _plc.clockPlcJitter.ToString(@"d\T\ hh\:mm\:ss\.fff");
             label_display_reconnect_counter.Text = _plc.reconnect_counter.ToString();
@@ -61,8 +62,8 @@ namespace AutoHome
 
         private void button_connect_Click(object sender, EventArgs e)
         {
-            _plc.connect(_cpsNet);
-            log.msg(this, "button connect at plcClient");
+            _plc.connect();
+            log.msg(this, "connect via FrmPlcClient.cs");
         }
 
         private void button_status_Click(object sender, EventArgs e)
@@ -143,11 +144,15 @@ namespace AutoHome
 
         private void button_disconnect_Click(object sender, EventArgs e)
         {
-            Frame f = new Frame(_plc.getClient());
-            f.SetHeaderFlag(FrameHeaderFlag.SYNC);
-            f.SetHeaderFlag(FrameHeaderFlag.LogMessage);  //at this context -> disconnect plc
-            _plc.send(f);
-            _plc.getClient().state = udp_state.disconnected;
+            _plc.disconnect();
+        }
+
+        private void button_subscribe_topics_Click(object sender, EventArgs e)
+        {
+            _plc.client_subscribe(checkBox_subscribeProzessData.Checked, checkBox_subscribe_PlcManagementData.Checked, 
+                Convert.ToInt16(textBox_prozessDataTopics.Text), (Int16)(Convert.ToInt16(textBox_prozessDataCycle.Text) * 1000),
+                (Int16)(Convert.ToInt16(textBox_ManagementDataCycle.Text) * 1000)
+                );
         }
     }
     
