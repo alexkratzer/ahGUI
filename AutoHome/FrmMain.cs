@@ -71,6 +71,8 @@ namespace AutoHome
                 //try to connect (send SYNC frame) with all projected plc´s
                 if (var.connect_to_plc_at_start)
                     p.connect();
+                else if (p.ConnectAtStartup)
+                    p.connect();
             }
 
             
@@ -842,7 +844,7 @@ namespace AutoHome
             }
         }
 
-        #region userControl
+        #region global view control and not platform gui
         private void comboBox_aktor_type_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(panel_controls.Visible)
@@ -851,8 +853,11 @@ namespace AutoHome
         private void comboBox_aktor_cpu_SelectedIndexChanged(object sender, EventArgs e)
         {
             //make_uc_list((plc)comboBox_aktor_cpu.SelectedItem, (type)comboBox_aktor_type.SelectedItem);
+            if (panel_controls.Visible)
+                make_uc_list();
         }
 
+        
         List<UserControl> list_UC = new List<UserControl>();
         //private void make_uc_list(plc p, type t)
         private void make_uc_list()
@@ -874,21 +879,18 @@ namespace AutoHome
                             list_UC[counter].Location = new Point(0, counter * 41);
                             panel_aktors.Controls.Add(list_UC[counter]);
                             counter++;
-                            ac.aktuator.plc_send_IO(DataIOType.GetState);
                             break;
                         case aktor_type.heater:
                             list_UC.Add((UC_heater)ac.user_control);
                             list_UC[counter].Location = new Point(0, counter * 32);
                             panel_aktors.Controls.Add(list_UC[counter]);
                             counter++;
-                            ac.aktuator.plc_send_IO(DataIOType.GetParam);
                             break;
                         case aktor_type.light:
                             list_UC.Add((UC_light)ac.user_control);
                             list_UC[counter].Location = new Point(0, counter * 23);
                             panel_aktors.Controls.Add(list_UC[counter]);
                             counter++;
-                            ac.aktuator.plc_send_IO(DataIOType.GetParam);
                             break;
                         case aktor_type.undef:
 
@@ -977,8 +979,9 @@ namespace AutoHome
                         _FrmMain_controlDialog.ShowDialog();
                     }
                     else
-                        a.plc_send_IO(DataIOType.SetState, new Int16[]{3}); //3 -> toggle switch state 
-                            //new Frame(Frame.SET_STATE(a.Index, !a.Light_switch_state)));
+                        //a.plc_send_IO(DataIOType.SetState, new Int16[]{3}); //3 -> toggle switch state 
+                                                                            //new Frame(Frame.SET_STATE(a.Index, !a.Light_switch_state)));
+                    a.sendProcessDataCmd(3);
                     break;
 
                 case aktor_type.jalousie:
@@ -1200,11 +1203,12 @@ namespace AutoHome
                 log.exception(this, "timer_refresh_control_Tick", ex);
             }
         }
+
         #endregion
 
         #region client callback (darstellung der werte in GUI)  ==> obsulete, now handled over plc.cs
-        
-         /// <summary>
+
+        /// <summary>
         /// interpretes the received Cps frame and display results @ gui
         /// </summary>
         /// <param name="f">received Cps frame</param>
@@ -1368,8 +1372,8 @@ namespace AutoHome
         //    foreach (plc p in list_plc) 
         //        if (p.IPplc==f.client.RemoteIp) 
         //            p.SetAktuatorData(f);
-                
-            
+
+
         //    ////[view platform] fill aktuator dialog box with values
         //    //if (_FrmMain_controlDialog != null)
         //    //    if (f.isIOIndex(_FrmMain_controlDialog.get_aktuator_id()))
@@ -1390,7 +1394,7 @@ namespace AutoHome
         //    //        if (f.isIOIndex(ac.aktuatorIndex))
         //    //            ac.interprete(f);
         //    //    }
-            
+
         //}
 
         /// <summary>
@@ -1420,6 +1424,5 @@ namespace AutoHome
 
         #endregion
 
-       
     }
 }

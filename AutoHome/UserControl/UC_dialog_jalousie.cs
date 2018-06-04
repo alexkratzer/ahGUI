@@ -18,57 +18,50 @@ namespace AutoHome
         public UC_dialog_jalousie(object aktor)
         {
             InitializeComponent();
-            _aktor = (aktuator)aktor;
-            _aktor.plc_send_IO(DataIOType.GetParam);
-            
+            _aktor = (aktuator)aktor;           
             init_event();
         }
 
         public void LoadData(object _value)
         {
+            aktuator_jalousie akt = new aktuator_jalousie((Int16[])_value);
             if (!checkBox_EditLock.Checked)
             {
+            //Int16[] value = (Int16[])_value;
                 
-                //Frame f = (Frame)frame;
-                Int16[] value = (Int16[])_value;
-                //label1.Text = "frame: " + f.ToString();
-                if (value.Length > 1)
+                textBox_wind_go_up.Text = (akt.wind_speed_threshold / 100).ToString("0.0");
+                //checkBox_initJalousie.Checked = Convert.ToBoolean(value[3]);
+
+                this.BackColor = Control.DefaultBackColor;
+                textBox_position.Text = akt.current_position.ToString();
+                textBox_angle.Text = akt.current_angle.ToString();
+
+                //TODO: load jalousie event data
+                /*
+                if (value.Length < 79)
                 {
-                    textBox_wind_go_up.Text = (Convert.ToDouble(value[2]) / 100).ToString("0.0");
-                    if (value.Length > 3) //TODO: sporadisch kurze frames (length[3])
-                    {
-                        checkBox_initJalousie.Checked = Convert.ToBoolean(value[3]);
-
-                        this.BackColor = Control.DefaultBackColor;
-                        textBox_position.Text = value[4].ToString();
-                        textBox_angle.Text = value[5].ToString();
-
-                        if (value.Length < 79)
-                        {
-                            log.msg(this, "UC_dialog_jalousie LoadData() with no event data; Length: " + value.Length.ToString());
-                            return;
-                        }
-                        //log.msg(this, "value length: " + value.Length.ToString());
-
-                        for (int i = 0; i < EVENT_COUNT; i++)
-                        {
-                            Int16[] extractValue = new Int16[7];
-                            for (int x = 0; x < 7; x++)
-                            {
-                                int index = 7 * i + x + 6;
-                                //log.msg(this, "index: " + index.ToString() + " value:" + value[index]);
-                                extractValue[x] = value[index];
-                            }
-                            //string tmp = "";
-                            //foreach (Int16 y in extractValue)
-                            //    tmp += y.ToString() + ", ";
-                            //log.msg(this, "extractValue: " + tmp);
-                            list_UC_jalousie[i].print_data(extractValue);
-                        }
-                    }
+                    log.msg(this, "UC_dialog_jalousie LoadData() with no event data; Length: " + value.Length.ToString());
+                    return;
                 }
-                else
-                    log.msg(this, "LoadData with empty value @RunningConfig");
+                //log.msg(this, "value length: " + value.Length.ToString());
+
+                for (int i = 0; i < EVENT_COUNT; i++)
+                {
+                    Int16[] extractValue = new Int16[7];
+                    for (int x = 0; x < 7; x++)
+                    {
+                        int index = 7 * i + x + 6;
+                        //log.msg(this, "index: " + index.ToString() + " value:" + value[index]);
+                        extractValue[x] = value[index];
+                    }
+                    //string tmp = "";
+                    //foreach (Int16 y in extractValue)
+                    //    tmp += y.ToString() + ", ";
+                    //log.msg(this, "extractValue: " + tmp);
+                    list_UC_jalousie[i].print_data(extractValue);
+                }
+                */
+                
             }
             
         }
@@ -100,7 +93,6 @@ namespace AutoHome
                 panel_params.Enabled = false;
                 for (int i = 0; i < EVENT_COUNT; i++)
                     list_UC_jalousie[i].Enabled = false;
-                _aktor.plc_send_IO(cpsLIB.DataIOType.GetParam);
             }
         }
         #endregion

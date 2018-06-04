@@ -26,6 +26,8 @@ namespace AutoHome
             checkBox_subscribeProzessData.Checked = _plc.subscribe_ProzessData;
             checkBox_subscribe_PlcManagementData.Checked = _plc.subscribe_PlcManagementData;
             textBox_prozessDataTopics.Text = _plc.ProzessDataTopics.ToString();
+
+            checkBox_connectAtStartup.Checked = _plc.ConnectAtStartup;
         }
         #region update gui timer
         System.Windows.Forms.Timer TimerUpdateGui;
@@ -60,6 +62,7 @@ namespace AutoHome
         //    return format;
         //}
 
+        #region buttons
         private void button_connect_Click(object sender, EventArgs e)
         {
             _plc.connect();
@@ -97,6 +100,23 @@ namespace AutoHome
                     a.plc_send_IO(DataIOType.SetParam, a.ConfigAktuatorValuesStartup);
         }
 
+        private void button_send_get_request_Click(object sender, EventArgs e)
+        {
+            _plc.ReadRunningConfig();
+        }
+
+        private void button_disconnect_Click(object sender, EventArgs e)
+        {
+            _plc.disconnect();
+        }
+
+        private void checkBox_connectAtStartup_CheckedChanged(object sender, EventArgs e)
+        {
+            _plc.ConnectAtStartup = checkBox_connectAtStartup.Checked;
+        }
+        #endregion
+
+        #region ibs send area
         private void button_send_ibs_Click(object sender, EventArgs e)
         {
             List<string> strPayload = new List<string>();
@@ -126,12 +146,9 @@ namespace AutoHome
             else
                 panel_IOdata.Visible = false;
         }
+        #endregion
 
-        private void button_send_get_request_Click(object sender, EventArgs e)
-        {
-            _plc.ReadRunningConfig();
-        }
-
+        #region subscribe
         private void checkBox_subscribeProzessData_CheckedChanged(object sender, EventArgs e)
         {
             _plc.subscribe_ProzessData = checkBox_subscribeProzessData.Checked;
@@ -142,18 +159,16 @@ namespace AutoHome
             _plc.subscribe_PlcManagementData = checkBox_subscribe_PlcManagementData.Checked;
         }
 
-        private void button_disconnect_Click(object sender, EventArgs e)
-        {
-            _plc.disconnect();
-        }
-
         private void button_subscribe_topics_Click(object sender, EventArgs e)
         {
-            _plc.client_subscribe(checkBox_subscribeProzessData.Checked, checkBox_subscribe_PlcManagementData.Checked, 
+            _plc.client_subscribe(checkBox_subscribeProzessData.Checked, checkBox_subscribe_PlcManagementData.Checked,
                 Convert.ToInt16(textBox_prozessDataTopics.Text), (Int16)(Convert.ToInt16(textBox_prozessDataCycle.Text) * 1000),
                 (Int16)(Convert.ToInt16(textBox_ManagementDataCycle.Text) * 1000)
                 );
         }
+
+        #endregion
+
     }
     
 }

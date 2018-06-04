@@ -131,18 +131,18 @@ namespace AutoHome
             }
         }
 
-        [NonSerialized]
-        private Int16[] _ValueStateRunning;
-        public Int16[] ValueStateRunning {
-            get
-            {
-                if (_ValueStateRunning == null)
-                    return new Int16[0];
-                else
-                    return _ValueStateRunning;
-            }
-            set { _ValueStateRunning = value; }
-        }
+        //[NonSerialized]
+        //private Int16[] _ValueStateRunning;
+        //public Int16[] ValueStateRunning {
+        //    get
+        //    {
+        //        if (_ValueStateRunning == null)
+        //            return new Int16[0];
+        //        else
+        //            return _ValueStateRunning;
+        //    }
+        //    set { _ValueStateRunning = value; }
+        //}
 
         [NonSerialized]
         private Int16[] _plcProcessDatapoint;
@@ -188,15 +188,7 @@ namespace AutoHome
         public void plc_send(Frame f) {
             _plc.send(f);
         }
-        public void plc_send_IO(DataIOType diot)
-        {
-            if (_plc != null)
-            {
-                Frame f = new Frame(_plc.getClient(), new Int16[] { Index, (Int16)diot });
-                f.SetHeaderFlag(FrameHeaderFlag.PdataIO);
-                _plc.send(f);
-            }
-        }
+
 
         /// <summary>
         /// make and send IO Frame to PLC
@@ -217,7 +209,26 @@ namespace AutoHome
                 _plc.send(f);
             }
         }
-        
+
+        //TODO: move this structure deffinition to an global master-data-management app
+        //data0: aktuator id; data1: cmd type (1:executeCmd); data2: prozessdata value
+        public void sendProcessDataCmd(int prozessdataFirstValue)
+        {
+            if (_plc != null)
+            {
+                const Int16 execute_cmd_at_specific_aktuator = 1;
+                //Int16[] start = new Int16[] { Index, (Int16)diot };
+                //Int16[] complete = new Int16[start.Length + data.Length];
+                //start.CopyTo(complete, 0);
+                //data.CopyTo(complete, start.Length);
+
+                Frame f = new Frame(_plc.getClient(), new Int16[] { execute_cmd_at_specific_aktuator,
+                    this.Index, Convert.ToInt16(prozessdataFirstValue) });
+                f.SetHeaderFlag(FrameHeaderFlag.PdataIO);
+                _plc.send(f);
+            }
+        }
+
         public override string ToString()
         { 
             string s = _index + " : ";

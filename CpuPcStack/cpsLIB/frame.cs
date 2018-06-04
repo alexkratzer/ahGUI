@@ -296,6 +296,11 @@ namespace cpsLIB
             return header.FrameIndex;
         }
 
+        /// <summary>
+        /// maybe return true if header flag is current at set state
+        /// </summary>
+        /// <param name="fhf"></param>
+        /// <returns></returns>
         public bool GetHeaderFlag(FrameHeaderFlag fhf) {
             return header.GetHeaderFlag(fhf);
         }
@@ -412,6 +417,11 @@ namespace cpsLIB
                 return (FrameHeaderFlag)map;
             }
 
+            /// <summary>
+            /// maybe return true if header flag is current at set state
+            /// </summary>
+            /// <param name="fhf"></param>
+            /// <returns></returns>
             public bool GetHeaderFlag(FrameHeaderFlag fhf)
             {
                 return (ByteHeaderFlag & (1 << (int)fhf)) != 0;

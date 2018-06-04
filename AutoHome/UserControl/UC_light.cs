@@ -19,7 +19,6 @@ namespace AutoHome
             InitializeComponent();
             akt = (aktuator)a;
             label_name.Text = "[" + akt.Index.ToString() + "] " + akt.Name;
-            akt.plc_send_IO(DataIOType.GetParam);
         }
 
         private void checkBox_light_enable_lux_CheckedChanged(object sender, EventArgs e)
@@ -97,7 +96,7 @@ namespace AutoHome
 
         private void button_switch_light_Click(object sender, EventArgs e)
         {
-            akt.plc_send_IO(DataIOType.SetState, new Int16[]{Convert.ToInt16(!checkBox_switch.Checked) });
+            akt.sendProcessDataCmd(Convert.ToInt16(!checkBox_switch.Checked) );
         }
 
         private void textBox_light_lux_off_TextChanged(object sender, EventArgs e)

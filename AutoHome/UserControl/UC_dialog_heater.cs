@@ -18,7 +18,6 @@ namespace AutoHome
         {
             InitializeComponent();
             akt = (aktuator)aktor;
-            akt.plc_send_IO(cpsLIB.DataIOType.GetParam);
         }
         public UC_dialog_heater LoadData(object _value)
         {

@@ -23,7 +23,6 @@ namespace AutoHome
             InitializeComponent();
             akt = (aktuator)_a;
             label_name.Text = "[" + akt.Index.ToString() + "] " + akt.Name;
-            akt.plc_send_IO(DataIOType.GetParam);
         }
 
         public void interprete(object _f)

@@ -61,7 +61,21 @@ namespace AutoHome
             set { _PLC_Name = value; }
         }
 
-        //subscriptions which topics the plc has to send cyclic
+        public udp_state ConnectionState
+        {
+            get
+            {
+                if (client_udp != null)
+                    return client_udp.state;
+                else
+                    return udp_state.disconnected;
+            }
+            //set { _connectionState = value; }
+        }
+
+        public bool ConnectAtStartup = true;
+
+        #region subscriptions which topics the plc has to send cyclic
         private bool _subscribe_ProzessData = false;
         public bool subscribe_ProzessData
         {
@@ -93,24 +107,10 @@ namespace AutoHome
             get { return _PlcManagementDataRefreshCycle; }
             set { _PlcManagementDataRefreshCycle = value; }
         }
-
+        #endregion
 
         public int new_message_count = 0;
         public List<aktuator> ListAktuator;
-
-        //private udp_state _connectionState = udp_state.disconnected;
-        public udp_state ConnectionState
-        {
-            get {
-                if (client_udp != null)
-                    return client_udp.state;
-                else
-                    return udp_state.disconnected;
-            }
-            //set { _connectionState = value; }
-        }
-
-
         #endregion
 
         #region tmp vars [NonSerialized]
@@ -120,8 +120,6 @@ namespace AutoHome
         private cpsLIB.Client client_udp = null;
 
         //wird als temporäre variable in FrmMain benötigt
-        //[NonSerialized]
-        //public List<Int16> ListSensorIDs;
         [NonSerialized]
         public DateTime clockPlc;
         [NonSerialized]
@@ -129,19 +127,14 @@ namespace AutoHome
         [NonSerialized]
         public TimeSpan clockPlcJitter;
         [NonSerialized]
-        //public Frame DataMngType_GetPlcSensorValues;
         Dictionary<Int16, float> DicSensorVal;
         [NonSerialized]
-        private List<akt_DataPoint> ListRcvDatapoints ;
-
-
-        //IBS connect counter
+        private List<akt_DataPoint> ListRcvDatapoints;
         [NonSerialized]
-        public int reconnect_counter = 0;
+        public int reconnect_counter = 0; //IBS connect counter
 
         #endregion
 
-        //Thread SendMsg;
         #region construktor / init 
         public plc(string ip, int port, string plc_name = "not named")
         {
@@ -152,6 +145,7 @@ namespace AutoHome
             ListAktuator = new List<aktuator>();
             
         }
+        //because deserialice doesnt make new client init is called at startup
         public void InitCps(CpsNet _cpsNet) {
             cpsNet = _cpsNet;
 
@@ -164,6 +158,7 @@ namespace AutoHome
             }
             else
                 client_udp = cpsNet.newClient(_ip, _port.ToString());
+
             ListRcvDatapoints = new List<akt_DataPoint>();
         }
         //region timer disabled
@@ -244,6 +239,11 @@ namespace AutoHome
             return sendSYNCsubscribe();
         }
 
+        /// <summary>
+        /// send frame to remote and log this frame at cpsNet
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
         public bool send(Frame f)
         {
             if (client_udp == null)
@@ -276,15 +276,6 @@ namespace AutoHome
         }
 
         #endregion
-        //public void send(FrameHeaderFlag hf, Int16[] data )
-        //{
-        //    if (client_udp != null)
-        //    {
-        //        Frame f = new Frame(client_udp, data);
-        //        f.SetHeaderFlag(hf);
-        //        cpsNet.send(f);
-        //    }
-        //}
 
         public override string ToString()
         { 
@@ -386,15 +377,13 @@ namespace AutoHome
             //if (p_selected != null)
                 //p_selected.update_SensorControl(f);
         }
-
-        //########################################################## TODO ############################################
+        
         int DBG_processDataFramesRCV = 0;
         int DBG_processDataDataPointsRCV = 0;
         
         private void interpreteAktuatorData(Frame f)
         {
             DBG_processDataFramesRCV++;
-            //########################################################## 
             const int DataPointHeaderLength = 2; 
             //seperate rcv frame in datapoint frames and send to aktuator
             //payload data
@@ -404,28 +393,39 @@ namespace AutoHome
             int GetPayloadIndex = 0;
             while (GetPayloadIndex < f.getPayloadIntLengt())
             {
-                DBG_processDataDataPointsRCV++;
-                int datapointLength = f.getPayload(GetPayloadIndex);
-                aktor_type akt = (aktor_type)f.getPayload(GetPayloadIndex + 1);
-                Int16[] tmp = new Int16[datapointLength - DataPointHeaderLength];
-
-                for (int i = 0; i < datapointLength - DataPointHeaderLength; i++)
-                    tmp[i] = f.getPayload(GetPayloadIndex + i + 2);
-                
-                akt_DataPoint tmp_aktDP = new akt_DataPoint(akt, datapointLength, tmp[0], tmp);
-                ListRcvDatapoints.Add(tmp_aktDP);
-                GetPayloadIndex = GetPayloadIndex + datapointLength;
-
-                foreach (aktuator a in ListAktuator)
+                try
                 {
-                    if (a.Index == tmp_aktDP.aktuator_index)
+                    DBG_processDataDataPointsRCV++;
+                    int datapointLength = f.getPayload(GetPayloadIndex);
+                    aktor_type akt = (aktor_type)f.getPayload(GetPayloadIndex + 1);
+
+                    Int16[] tmp = new Int16[datapointLength - DataPointHeaderLength];
+
+                    for (int i = 0; i < datapointLength - DataPointHeaderLength; i++)
+                        tmp[i] = f.getPayload(GetPayloadIndex + i + 2);
+
+                    akt_DataPoint tmp_aktDP = new akt_DataPoint(akt, datapointLength, tmp[0], tmp);
+                    ListRcvDatapoints.Add(tmp_aktDP);
+                    GetPayloadIndex = GetPayloadIndex + datapointLength;
+
+                    foreach (aktuator a in ListAktuator)
                     {
-                        a.lastUpdateTimestamp = DateTime.Now;
-                        a.ValueStateRunning = tmp_aktDP.rawValue;
-                        break;
+                        if (a.Index == tmp_aktDP.aktuator_index)
+                        {
+                            if (!a.AktorType.Equals(tmp_aktDP.aktor_type))
+                                log.msg(this, "plc.cs/interpreteAktuatorData() " + "RCV AktorType "
+                                    + a.AktorType.ToString() + " not projected at interface ID: " + tmp_aktDP.aktuator_index);
+                            a.lastUpdateTimestamp = DateTime.Now;
+                            a.plcProcessDatapoint = tmp_aktDP.rawValue;
+                            break;
+                        }
                     }
-                    log.msg(this, "plc.cs, interpreteAktuatorData -> no aktuator found for index: " + tmp_aktDP.aktuator_index.ToString());
                 }
+                catch (Exception ex) {
+                    log.exception(this, "interpreteAktuatorData() payload data wrong length... ", ex);
+                    throw;
+                }
+                //log.msg(this, "plc.cs, interpreteAktuatorData -> no aktuator found for index: " + tmp_aktDP.aktuator_index.ToString());
             }
 
             //old protocol type

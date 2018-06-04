@@ -71,16 +71,17 @@ namespace AutoHome
         public void change_aktuator(aktuator a)
         {
             _aktuator = a;
-            if (_aktuator.AktorType == aktor_type.sensor)
-                _UCsensorValue.update_label_text();
-            else
-                _PictureBox.update_label_text();
+            if (_aktuator != null)
+                if (_aktuator.AktorType == aktor_type.sensor)
+                    _UCsensorValue.update_label_text();
+                else
+                    _PictureBox.update_label_text();
         }
 
         public void update_control()
         {
-            if (_PictureBox != null && _aktuator.ValueStateRunning.Length != 0)
-                _PictureBox.pic_update(_aktuator.ValueStateRunning);
+            if (_PictureBox != null && _aktuator.plcProcessDatapoint.Length != 0)
+                _PictureBox.pic_update(_aktuator.plcProcessDatapoint);
 
 
             /* OLD PART

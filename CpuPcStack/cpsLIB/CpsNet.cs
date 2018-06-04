@@ -229,8 +229,9 @@ namespace cpsLIB
             foreach (Client cs in ListClients)
                 if (cs.RemoteIp == f.client.RemoteIp)
                 { //hier wichtig das nur die ip verglichen wird. port ist unterschiedlich
-                    cs.RcvErrorCounter = 0; //reset error counter
                     QueueRcvFrameToApp.interprete_frame(f);
+                    if (f.GetHeaderFlag(FrameHeaderFlag.SYNC) && f.getPayload(1)==1)
+                        cs.RcvErrorCounter = 0; //reset error counter
                     break; //client is found, continue 
                 }
             
@@ -249,6 +250,9 @@ namespace cpsLIB
             //received frame will be passed to the main application
             //################# EDIT -> change from frm to plc
             //_FrmMain.interprete_frame(f);
+
+            //if sendframe was connection established then reset error counter
+
 
         }
         private Int64 LFrameIndex = 0;
@@ -329,12 +333,12 @@ namespace cpsLIB
                     {
                         if (dicF.Value.LastSendDateTime.AddMilliseconds(WATCHDOG_WORK) < DateTime.Now)
                         {
-                            dicF.Value.client.state = udp_state.disconnected;
+                            //dicF.Value.client.state = udp_state.disconnected;
                             dicF.Value.client.RcvErrorCounter++;
-                            logMsg(new log(LogType.error, "stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")", dicF.Value));
+                            logMsg(new log(LogType.error, "no answer to frame received (try:" + dicF.Value.SendTrys.ToString() + ")", dicF.Value));
                             if (!takeFrameFromStack(dicF.Key))
                                 logMsg(new log(LogType.error, "ERROR: takeFrameFromStack()", dicF.Value));
-                            QueueRcvFrameToApp.logMsg("[" + dicF.Value.client.ToString() + "] stop sending at try: (" + dicF.Value.SendTrys.ToString() + ")");
+                            QueueRcvFrameToApp.logMsg("[" + dicF.Value.client.ToString() + "] no answer to frame received (try: " + dicF.Value.SendTrys.ToString() + ")");
 
                             //hit Watchdog
                             //TODO: not realy necessary.... mayby remove this code / the complete stack buffer
@@ -371,7 +375,7 @@ namespace cpsLIB
                             if (dicF.Value.client.RcvErrorCounter > MaxRcvErrorCounter)
                             {
                                 QueueRcvFrameToApp.logMsg("["+ dicF.Value.client.ToString() + "] client disconnected because no answer to request");
-                                dicF.Value.client.state = udp_state.disconnected;
+                                dicF.Value.client.state = udp_state.SendError;
                             }
                         }
                     }
