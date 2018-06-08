@@ -127,7 +127,8 @@ namespace cpsLIB
 
         public void SetHeaderFlag(FrameHeaderFlag fhf)
         {
-            header.SetHeaderFlag(fhf);
+            if(header!=null)
+                header.SetHeaderFlag(fhf);
         }
 
         /// <summary>
