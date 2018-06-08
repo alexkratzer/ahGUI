@@ -34,8 +34,8 @@ namespace AutoHome
             TimerUpdateGui.Start();
         }
         private void UpdateGui_tick(object sender, EventArgs e) {
-            
-            label_CpsStatus.Text = _plc.getClient().GetStatus();
+            if(_plc.getClient()!=null)
+                label_CpsStatus.Text = _plc.getClient().GetStatus();
             label_plc_time.Text = _plc.clockPlc.ToString();
             label_time_difference.Text = _plc.clockPlcJitter.ToString(@"d\T\ hh\:mm\:ss\.fff");
             label_display_reconnect_counter.Text = _plc.reconnect_counter.ToString();
