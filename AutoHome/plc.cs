@@ -132,7 +132,8 @@ namespace AutoHome
         private List<akt_DataPoint> ListRcvDatapoints;
         [NonSerialized]
         public int reconnect_counter = 0; //IBS connect counter
-
+        //[NonSerialized]
+        //bool dbg_flag_once = true;
         #endregion
 
         #region construktor / init 
@@ -293,6 +294,10 @@ namespace AutoHome
         #endregion
 
         #region interprete data
+
+        int DBG_processDataFramesRCV = 0;
+        int DBG_processDataDataPointsRCV = 0;
+
         /// <summary>
         /// API für QueueRcvFromCps.cs
         /// </summary>
@@ -313,7 +318,10 @@ namespace AutoHome
                     else if (_f.GetHeaderFlag(FrameHeaderFlag.ACKN))
                         log.msg(this, "interpreteFrame(), plc.cs: rcv FrameHeaderFlag.ACKN");
                     else if (_f.GetHeaderFlag(FrameHeaderFlag.PdataIO))
-                        interpreteAktuatorData(_f);
+                        if (_f.GetHeaderFlag(FrameHeaderFlag.containering))
+                            interpreteAktuatorContainerData(_f, _f.GetIndex());
+                        else
+                            interpreteAktuatorSensorValue(_f, _f.GetIndex());
                     //log.msg(this, "interpreteFrame(), plc.cs: rcv FrameHeaderFlag.PdataIO");
                     else
                         log.msg(this, "interpreteFrame(), plc.cs: rcv with UNKNOWN FrameHeaderFlag");
@@ -352,7 +360,7 @@ namespace AutoHome
                 //evtl update_SensorControl() über timer aufrufen und nicht via event
                 //komplettes frame durchgehen und auspacken. für jeden sensorwert entsprechendes controll befüllen
 
-
+                /*
                 for (int i = 3; i < (f.getPayloadIntLengt()); i = i + 3)
                 {
                     float SensorValue;
@@ -371,39 +379,50 @@ namespace AutoHome
                 foreach (aktuator a in ListAktuator) 
                     if (DicSensorVal.ContainsKey(a.Index))
                         a.SensorValue = DicSensorVal[a.Index];
+                        */
             }
 
             //platform p_selected = (platform)comboBox_platform.SelectedItem;
             //if (p_selected != null)
                 //p_selected.update_SensorControl(f);
         }
+
+        const int DataPointHeaderLength = 2;
         
-        int DBG_processDataFramesRCV = 0;
-        int DBG_processDataDataPointsRCV = 0;
-        
-        private void interpreteAktuatorData(Frame f)
+        private void interpreteAktuatorContainerData(Frame f, int items)
         {
+                //log.msg(this, "at interpreteAktuatorContainerData; items: " + items.ToString());
+                //log.msg(this, f.ToString());
+               
             DBG_processDataFramesRCV++;
-            const int DataPointHeaderLength = 2; 
             //seperate rcv frame in datapoint frames and send to aktuator
             //payload data
             //data[0] = int length of datapoint
             //data[1] = int type of aktuator
 
-            int GetPayloadIndex = 0;
-            while (GetPayloadIndex < f.getPayloadIntLengt())
+            int GetPayloadIndex = 0; //itterator of position in payload of frame
+            int items_interpretet = 0;
+            //while (GetPayloadIndex < f.getPayloadIntLengt())
+            while (items_interpretet < items)
             {
+                items_interpretet++;
+                DBG_processDataDataPointsRCV++;
                 try
                 {
-                    DBG_processDataDataPointsRCV++;
                     int datapointLength = f.getPayload(GetPayloadIndex);
                     aktor_type akt = (aktor_type)f.getPayload(GetPayloadIndex + 1);
-
+                    //log.msg(this, "datapointLength: " + datapointLength.ToString() + " DataPointHeaderLength: " + DataPointHeaderLength.ToString());
                     Int16[] tmp = new Int16[datapointLength - DataPointHeaderLength];
+                    
+                        //string dbg_data = "";
+                        for (int i = 0; i < datapointLength - DataPointHeaderLength; i++)
+                        {
+                            tmp[i] = f.getPayload(GetPayloadIndex + i + 2);
+                          //  dbg_data = dbg_data + tmp[i].ToString() + ", ";
+                        }
 
-                    for (int i = 0; i < datapointLength - DataPointHeaderLength; i++)
-                        tmp[i] = f.getPayload(GetPayloadIndex + i + 2);
-
+                        //log.msg(this, "DataPoint " + items_interpretet.ToString() + " " + dbg_data);
+                    
                     akt_DataPoint tmp_aktDP = new akt_DataPoint(akt, datapointLength, tmp[0], tmp);
                     ListRcvDatapoints.Add(tmp_aktDP);
                     GetPayloadIndex = GetPayloadIndex + datapointLength;
@@ -427,7 +446,7 @@ namespace AutoHome
                 }
                 //log.msg(this, "plc.cs, interpreteAktuatorData -> no aktuator found for index: " + tmp_aktDP.aktuator_index.ToString());
             }
-
+            
             //old protocol type
             /*
             foreach (aktuator a in ListAktuator)
@@ -445,6 +464,42 @@ namespace AutoHome
             }
             */
         }
+        
+        private void interpreteAktuatorSensorValue(Frame f, int items)
+        {
+            try
+            {
+                int interpretet_items = 0;
+                aktor_type akt = aktor_type.sensor;
+
+                while (interpretet_items <= items)
+                {
+                    foreach (aktuator a in ListAktuator)
+                    {
+                        if (a.Index == f.getPayload(interpretet_items*2))
+                        {
+                            if (!a.AktorType.Equals(akt))
+                                log.msg(this, "plc.cs/interpreteAktuatorData() " + "RCV AktorType "
+                                    + a.AktorType.ToString() + " not projected at interface ID: " + f.getPayload(interpretet_items*2));
+                            a.lastUpdateTimestamp = DateTime.Now;
+                            a.sensor_value = f.getPayload(interpretet_items*2 + 1);
+                            break;
+                        }
+                    }
+                    interpretet_items++;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                log.exception(this, "interpreteAktuatorSensorValue()", ex);
+                throw;
+            }
+
+            //log.msg(this, "plc.cs, interpreteAktuatorData -> no aktuator found for index: " + tmp_aktDP.aktuator_index.ToString());
+             
+        }
+        
 
         private void interpreteSYNCacknowlege(Frame f) {
             //log.msg(this, "interpreteFrame(), plc.cs: rcv FrameHeaderFlag.SYNC -> " + f.ToString());

@@ -82,7 +82,8 @@ namespace AutoHome
         {
             if (_PictureBox != null && _aktuator.plcProcessDatapoint.Length != 0)
                 _PictureBox.pic_update(_aktuator.plcProcessDatapoint);
-
+            else if (_type == aktor_type.sensor && _UCsensorValue != null)
+                _UCsensorValue.updateValue(_aktuator.sensor_value);
 
             /* OLD PART
             if (_PictureBox != null && _aktuator.ConfigAktuatorValuesRunning.Length != 0)
