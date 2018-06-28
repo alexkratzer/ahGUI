@@ -1130,7 +1130,11 @@ namespace AutoHome
             {
                 if (((plc)p.Tag) != null) //TODO Server Button nicht beachten, dann abfrage auf !=null überflüssig
                 {
-                    udp_state state = ((plc)p.Tag).getClient().state;
+                    udp_state state;
+                    if (((plc)p.Tag).getClient() == null)
+                        state = udp_state.SendError;
+                    else
+                        state = ((plc)p.Tag).getClient().state;
                     if (state == udp_state.connected && p.BackColor != Color.LightGreen)
                         p.BackColor = Color.LightGreen;
                     else if (state == udp_state.disconnected && p.BackColor != Color.Yellow)
