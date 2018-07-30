@@ -53,8 +53,7 @@ namespace cpsLIB
 
         public void receive()
         {
-            ////// TODO ########################################################################### IBS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            //Thread.Sleep(500); //Verzögerung: Beim Tool starten wird erste logmeldung sporadisch zu früh an gui gesendet
+            Thread.Sleep(5); //Verzögerung: Beim Tool starten wird erste logmeldung sporadisch zu früh an gui gesendet
 
             try
             {
