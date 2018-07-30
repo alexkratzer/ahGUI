@@ -24,8 +24,8 @@ namespace cpsLIB
 
         [NonSerialized]
         public volatile udp_state state = udp_state.disconnected;
-
         [NonSerialized]
+        public volatile bool keepConnectionClose = false;
         public int RcvErrorCounter = 0;
 
         public Client(string ip, string port)
@@ -60,40 +60,18 @@ namespace cpsLIB
             return ans;
         }
 
-        /// <summary>
-        /// check if RemoteIP and RemotePort is equal
-        /// ####################################################
-        /// hint: port of send and received frame is NOT equal
-        /// ####################################################
-        /// </summary>
-        /// <param name="cc"></param>
-        /// <returns></returns>
-        public bool IsEqual(Client cc)
-        {
-            if ((RemoteIp == cc.RemoteIp) && (RemotePort == cc.RemotePort))
-                return true;
-            else
-                return false;
-        }
+        #region udp client   
 
-        #region udp client
         /// <summary>
-        /// IBS function -> used only in FrmCps
+        /// send frame to connected plc server
         /// </summary>
+        /// <param name="f"></param>
         /// <returns></returns>
-        public bool sendSYNC()
-        {
-            RcvErrorCounter = 0;
-            Frame f = new Frame(new Client(RemoteIp, RemotePortStr));
-            f.SetHeaderFlag(FrameHeaderFlag.SYNC);
-            return send(f);
-        }
-        
-        public bool send(Frame f)
+        public bool send_from_CpsNet(Frame f)
         {
             try
             {
-                if ((state == udp_state.connected) || f.GetHeaderFlag(FrameHeaderFlag.SYNC))
+                if ((state == udp_state.connected) || f.GetHeaderFlag(FrameHeaderFlag.SYNC ))
                 {
                     //der App wird mitgeteilt das dieses frame verschickt wurde
                     //if (SendFramesCallback)
@@ -106,10 +84,11 @@ namespace cpsLIB
                     _clientThread.IsBackground = true;
                     _clientThread.Start();
                     return true;
-                } else;
+                } else
+                    return false;
                      //"Remote udp_state NOT connected - NO Frame is send");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 state = udp_state.SendError;
             }
@@ -124,5 +103,6 @@ namespace cpsLIB
             udpClient.Close();
         }
         #endregion
+
     }
 }

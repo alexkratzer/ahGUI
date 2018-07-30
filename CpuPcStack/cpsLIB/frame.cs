@@ -11,14 +11,16 @@ using System.Net;
 namespace cpsLIB
 {
     public enum FrameSender { SEND, RCVE, unknown }
+    //SYNC frame -> first payload meaning
+    public enum HEADER_SYNC {SYNC_notUsed = 0, CONNECT, DISCONNECT, TRIGGER_WATCHDOG, ERROR, SUBSCRIBE}
     //public enum FrameState { UNDEF, ERROR, IS_OK}
     //public enum FrameWorkingState { created, inWork, finish, error, warning, received, send}
-    
-        //public static Int16[] SET_STATE(int index, string position, string angle) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(position), Convert.ToInt16(angle), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
-        //public static Int16[] SET_STATE(int index, bool state_switch) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(state_switch), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
-    
+
+    //public static Int16[] SET_STATE(int index, string position, string angle) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(position), Convert.ToInt16(angle), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
+    //public static Int16[] SET_STATE(int index, bool state_switch) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(state_switch), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
+
     //order of the flags must match with the Remote FrameHeaderFlag 
-    public enum FrameHeaderFlag { containering = 0, SYNC, LogMessage, ACKN, PdataIO, PdataParam, MngData }
+    public enum FrameHeaderFlag { containering = 0, SYNC, LogMessage, ACKN, PdataIO, unused, MngData }
     //public enum HeaderFlagManagementData { GetTime = 1, SetTime = 2,  }
     public enum DataIOType {ignore=0, GetState=1, SetState=2, GetParam=3, SetParam=4,
         SetParamJalousieEvent = 5, GetParamJalousieEvent = 6,
@@ -99,7 +101,9 @@ namespace cpsLIB
                     header = new FrameHeader(data, out FramePayloadByte);
                 }
             }
-            catch (Exception) {}
+            catch (Exception e) {
+                System.IO.File.AppendAllText(@"C:\Users\alex\Desktop\DbgAhGUI_frames.txt", "Exp: " + e.Message + Environment.NewLine);
+            }
         }
         #endregion
 
@@ -151,13 +155,13 @@ namespace cpsLIB
             else
                 return false;
         }
-        public bool isIOIndex(int index)
-        {
-            if (getPayload(0) == index)
-                return true;
-            else
-                return false;
-        }
+        //public bool isIOIndex(int index)
+        //{
+        //    if (getPayload(0) == index)
+        //        return true;
+        //    else
+        //        return false;
+        //}
 
         #endregion
 
@@ -185,7 +189,7 @@ namespace cpsLIB
             Int16 tmp = (Int16)(256 * FramePayloadByte[index] + FramePayloadByte[index+1]);
             return tmp;
         }
-        public int getPaloadIntLengt() {
+        public int getPayloadIntLengt() {
             return FramePayloadByte.Length / 2;
         }
         public bool IsEqual(Frame f)
@@ -293,6 +297,11 @@ namespace cpsLIB
             return header.FrameIndex;
         }
 
+        /// <summary>
+        /// maybe return true if header flag is current at set state
+        /// </summary>
+        /// <param name="fhf"></param>
+        /// <returns></returns>
         public bool GetHeaderFlag(FrameHeaderFlag fhf) {
             return header.GetHeaderFlag(fhf);
         }
@@ -409,6 +418,11 @@ namespace cpsLIB
                 return (FrameHeaderFlag)map;
             }
 
+            /// <summary>
+            /// maybe return true if header flag is current at set state
+            /// </summary>
+            /// <param name="fhf"></param>
+            /// <returns></returns>
             public bool GetHeaderFlag(FrameHeaderFlag fhf)
             {
                 return (ByteHeaderFlag & (1 << (int)fhf)) != 0;
@@ -483,13 +497,12 @@ namespace cpsLIB
       
         #region frames_payload (to make frames)
         public static Int16[] payload_0(Int16 value) { return new Int16[] { value }; }
+        public static Int16[] send_watchdog(Int16 value) { return new Int16[] { value }; }
         /*public static Int16[] GET_STATE(Int16 index) { return new Int16[] { index, 1 }; }
         public static Int16[] GET_PARAM(int index) { return new Int16[] { Convert.ToInt16(index), 3 }; }
         public static Int16[] SET_STATE(int index, string position, string angle) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(position), Convert.ToInt16(angle), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
-        public static Int16[] SET_STATE(int index, bool state_switch) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(state_switch), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }
-        
+        public static Int16[] SET_STATE(int index, bool state_switch) { return new Int16[] { Convert.ToInt16(index), 2, Convert.ToInt16(state_switch), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; }     
          */
-
 
         public static Frame MngData(Client c, DataMngType DMT)
         {

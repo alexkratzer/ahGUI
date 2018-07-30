@@ -45,6 +45,7 @@
             this.label_current_state = new System.Windows.Forms.Label();
             this.checkBox_EditLock = new System.Windows.Forms.CheckBox();
             this.panel_edit = new System.Windows.Forms.Panel();
+            this.textBox_auto_off_time = new System.Windows.Forms.TextBox();
             this.panel_edit.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -162,7 +163,7 @@
             // label_remaining_on_desc
             // 
             this.label_remaining_on_desc.AutoSize = true;
-            this.label_remaining_on_desc.Location = new System.Drawing.Point(69, 62);
+            this.label_remaining_on_desc.Location = new System.Drawing.Point(69, 80);
             this.label_remaining_on_desc.Name = "label_remaining_on_desc";
             this.label_remaining_on_desc.Size = new System.Drawing.Size(55, 13);
             this.label_remaining_on_desc.TabIndex = 43;
@@ -171,7 +172,7 @@
             // label_remaining_on
             // 
             this.label_remaining_on.AutoSize = true;
-            this.label_remaining_on.Location = new System.Drawing.Point(135, 62);
+            this.label_remaining_on.Location = new System.Drawing.Point(134, 80);
             this.label_remaining_on.Name = "label_remaining_on";
             this.label_remaining_on.Size = new System.Drawing.Size(22, 13);
             this.label_remaining_on.TabIndex = 44;
@@ -199,6 +200,7 @@
             // 
             // panel_edit
             // 
+            this.panel_edit.Controls.Add(this.textBox_auto_off_time);
             this.panel_edit.Controls.Add(this.label_remaining_on);
             this.panel_edit.Controls.Add(this.label_remaining_on_desc);
             this.panel_edit.Controls.Add(this.label3);
@@ -214,6 +216,13 @@
             this.panel_edit.Name = "panel_edit";
             this.panel_edit.Size = new System.Drawing.Size(205, 97);
             this.panel_edit.TabIndex = 81;
+            // 
+            // textBox_auto_off_time
+            // 
+            this.textBox_auto_off_time.Location = new System.Drawing.Point(104, 53);
+            this.textBox_auto_off_time.Name = "textBox_auto_off_time";
+            this.textBox_auto_off_time.Size = new System.Drawing.Size(85, 20);
+            this.textBox_auto_off_time.TabIndex = 45;
             // 
             // UC_dialog_light
             // 
@@ -254,5 +263,6 @@
         private System.Windows.Forms.Label label_current_state;
         private System.Windows.Forms.CheckBox checkBox_EditLock;
         private System.Windows.Forms.Panel panel_edit;
+        private System.Windows.Forms.TextBox textBox_auto_off_time;
     }
 }

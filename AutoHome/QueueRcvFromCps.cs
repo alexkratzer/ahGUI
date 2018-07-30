@@ -27,7 +27,8 @@ namespace AutoHome
                     return ;
             //dbgcount++;
             //TODO: keine plc hat frame verarbeitet
-            logMsg("QueueRcvFromCps: keine plc hat frame verarbeitet");
+            Frame _f = (Frame)o;
+            logMsg("QueueRcvFromCps: no plc has prozessed frame for: " + _f.client.RemoteIp);
         }
 
         public void logMsg(string msg)

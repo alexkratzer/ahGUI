@@ -546,6 +546,7 @@
             this.comboBox_aktor_cpu.Name = "comboBox_aktor_cpu";
             this.comboBox_aktor_cpu.Size = new System.Drawing.Size(185, 21);
             this.comboBox_aktor_cpu.TabIndex = 2;
+            this.comboBox_aktor_cpu.SelectedIndexChanged += new System.EventHandler(this.comboBox_aktor_cpu_SelectedIndexChanged);
             // 
             // pictureBox_platform
             // 

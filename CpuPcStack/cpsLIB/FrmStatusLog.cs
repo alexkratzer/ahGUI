@@ -13,7 +13,7 @@ namespace cpsLIB
     {
         BindingList<log> ListLogFrontend;
         List<log> ListLogBackend;
-        List<Client> ListClients = new List<Client>();
+        List<Client> ListClients;
 
         #region var
         private bool AutoScrollonUpdate = true;
@@ -42,6 +42,8 @@ namespace cpsLIB
 
             foreach(LogType p in Enum.GetValues(typeof(LogType)))
                 cLB_msgType.Items.Add(p,true);
+
+            ListClients = new List<Client>();
         }
 
         private void AddColumns()
@@ -201,41 +203,60 @@ namespace cpsLIB
         public int filtered_messages = 0;
         public int all_messages = 0;
         public int shown_messages = 0;
+ 
         private void logMsg(log _log)
         {
-            footer_TSSL_filtered.Text = "msg total: "+ all_messages+" / filtered: " + filtered_messages + " / shown: " + shown_messages;
+            filterstatusToolStripMenuItem.Text = "msg total: "+ all_messages+" / filtered: " + filtered_messages + " / shown: " + shown_messages;
             //store all log message in ListLogBackend
             ListLogBackend.Add(_log);
             all_messages++;
 
-            //check if client is in list
-            bool client_new = false;
-            foreach (Client c in ListClients)
-                if (_log.F.client == c)
-                    break;
-                else
-                    client_new = true;
-            //add new client
-            if (client_new) 
-                ListClients.Add(_log.F.client);
-
-            //
-            //if (c==cLB_filter_clients.SelectedItem)
-            //        cLB_filter_clients.Items.Add(c, true);
-
-
-            if (UpdateGUIonNewEvent)
-                filterMsg(_log);
-                //if(!cBshowInfo.Checked && !l.Prio.Equals(prio.info))
-                //foreach (prio p in Enum.GetValues(typeof(prio)))
-
-
+            //search _log message for new client and add to clientList if new
+            if (_log.C != null)
+                AddNewClient(_log.C);
+            else if (_log.F != null && _log.F.client != null) 
+                AddNewClient(_log.F.client);
             
+            if (UpdateGUIonNewEvent)
+                filterMsg(_log);   
         }
 
+        private void AddNewClient(Client c) {
+            //check if client is allready in list
+            foreach (Client cl in ListClients)
+                if (cl.RemoteIp == c.RemoteIp)
+                    return;
+            ListClients.Add(c);
+            cLB_filter_clients.Items.Add(c, true);
+        }
+        
         private void filterMsg(log _log) {
-            if (cLB_msgType.GetItemChecked((int)_log.Prio))
+            CheckedListBox.CheckedItemCollection CC = cLB_filter_clients.CheckedItems;
+            bool showMSG = false;
+            if (_log.C != null && CC.Contains(_log.C))
+                showMSG = true;
+            else if (_log.F != null && _log.F.client != null) {
+                List<Client> ListClient = cLB_filter_clients.CheckedItems.Cast<Client>().ToList();
+
+                foreach (Client c in ListClient)  {
+                    if (_log.F.client.RemoteIp == c.RemoteIp)
+                    {
+                        showMSG = true;
+                        break;
+                    }
+                }
+            }      
+            else
             {
+                //no client can be found... must be a server msg...
+                _log.Msg = "SERVER MSG [" + _log.Msg + "]";
+                showMSG = true;
+            }
+
+            if (showMSG && !cLB_msgType.GetItemChecked((int)_log.Prio))
+            showMSG = false;
+
+            if (showMSG) {
                 shown_messages++;
                 ListLogFrontend.Add(_log);
 
@@ -244,6 +265,7 @@ namespace cpsLIB
             }
             else
                 filtered_messages++;
+            
         }
 
        

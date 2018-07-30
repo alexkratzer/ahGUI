@@ -11,6 +11,9 @@ using System.Runtime.InteropServices;
 
 namespace AutoHome
 {
+    //####################################
+    // timer_GetRequestInterval.Start()
+    // ENABLE
     public enum aktor_type { undef, jalousie, light, heater, sensor }
     public enum msg_type { undef, info, warning, error }
 
@@ -28,7 +31,7 @@ namespace AutoHome
 
         #region init / connect / close
         public FrmMain()
-        {
+        { 
             InitializeComponent();
             log.msg(this, "### start AutoHome GUI " + tool_version + " ###");
 
@@ -62,13 +65,17 @@ namespace AutoHome
             rcvQueue = new QueueRcvFromCps(this, list_plc);
             CpsNet = new cpsLIB.CpsNet(rcvQueue, var.CpsNet_FrmStatusLog);
             CpsNet.serverSTART(var.CpsServerPort); 
-             
-            if (var.connect_to_plc_at_start)
-            {
+
+            foreach (plc p in list_plc){
+                p.InitCps(CpsNet);
                 //try to connect (send SYNC frame) with all projected plc´s
-                foreach (plc p in list_plc)
-                    p.connect(CpsNet);
+                if (var.connect_to_plc_at_start)
+                    p.connect();
+                else if (p.ConnectAtStartup)
+                    p.connect();
             }
+
+            
             log.msg(this, "initCps -> done");
         }
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -76,6 +83,7 @@ namespace AutoHome
             try
             {
                 var.LastPlatformView = comboBox_platform.SelectedIndex;
+
                 //if(FrmStatusLog!=null)
                 //var.LastShowFormFrameLog 
                 timer_stop();
@@ -535,8 +543,7 @@ namespace AutoHome
             MessageBox.Show(s, "Log Msg: " + ListLogMsg.Count);
             */
             FrmLog fl = new FrmLog(log.LogList);
-            fl.ShowDialog();
-
+            fl.Show();
         }
         #endregion 
 
@@ -677,7 +684,10 @@ namespace AutoHome
         {
             //try to connect (send SYNC frame) with all projected plc´s
             foreach (plc p in list_plc)
-                p.connect(CpsNet);
+            {
+                p.connect();
+                log.msg(this, "connect from TSSL: " + p.ToString());
+            }
         }
         //private void connectAllClientsToolStripMenuItem_Click(object sender, EventArgs e)
         //{
@@ -834,7 +844,7 @@ namespace AutoHome
             }
         }
 
-        #region userControl
+        #region global view control and not platform gui
         private void comboBox_aktor_type_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(panel_controls.Visible)
@@ -843,8 +853,11 @@ namespace AutoHome
         private void comboBox_aktor_cpu_SelectedIndexChanged(object sender, EventArgs e)
         {
             //make_uc_list((plc)comboBox_aktor_cpu.SelectedItem, (type)comboBox_aktor_type.SelectedItem);
+            if (panel_controls.Visible)
+                make_uc_list();
         }
 
+        
         List<UserControl> list_UC = new List<UserControl>();
         //private void make_uc_list(plc p, type t)
         private void make_uc_list()
@@ -866,21 +879,18 @@ namespace AutoHome
                             list_UC[counter].Location = new Point(0, counter * 41);
                             panel_aktors.Controls.Add(list_UC[counter]);
                             counter++;
-                            ac.aktuator.plc_send_IO(DataIOType.GetState);
                             break;
                         case aktor_type.heater:
                             list_UC.Add((UC_heater)ac.user_control);
                             list_UC[counter].Location = new Point(0, counter * 32);
                             panel_aktors.Controls.Add(list_UC[counter]);
                             counter++;
-                            ac.aktuator.plc_send_IO(DataIOType.GetParam);
                             break;
                         case aktor_type.light:
                             list_UC.Add((UC_light)ac.user_control);
                             list_UC[counter].Location = new Point(0, counter * 23);
                             panel_aktors.Controls.Add(list_UC[counter]);
                             counter++;
-                            ac.aktuator.plc_send_IO(DataIOType.GetParam);
                             break;
                         case aktor_type.undef:
 
@@ -969,8 +979,9 @@ namespace AutoHome
                         _FrmMain_controlDialog.ShowDialog();
                     }
                     else
-                        a.plc_send_IO(DataIOType.SetState, new Int16[]{3}); //3 -> toggle switch state 
-                            //new Frame(Frame.SET_STATE(a.Index, !a.Light_switch_state)));
+                        //a.plc_send_IO(DataIOType.SetState, new Int16[]{3}); //3 -> toggle switch state 
+                                                                            //new Frame(Frame.SET_STATE(a.Index, !a.Light_switch_state)));
+                    a.sendProcessDataCmd(3);
                     break;
 
                 case aktor_type.jalousie:
@@ -1052,28 +1063,37 @@ namespace AutoHome
         }
         #endregion
 
-        //TODO: in eigenen timer auslagern
-        //int dbg_count = 10;
+
         /// <summary>
-        /// collect all visible controll IDs and send GetRequest @PLC
+        /// TODO: not used, plc send all data as long as connection is established
+        /// what it does: collect all visible controll IDs and send GetRequest @PLC
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         void timer_GetRequestInterval_Tick(object sender, EventArgs e)
         {
+            //####################################################
+            //TODO: MOVE WATCHDOG TO CLIENT
+            //################## watchdog ########################
+            /*
+            if (list_plc.Any())
+                foreach (plc p in list_plc)
+                    if (p.IsConnected())
+                        p.SYNC_trigger_watchdog();
+
+            */
+
             //********************************************************************************************************************
             //ReadRunningConfig from all aktuators -> send GetRequest (Get_Param) @PLC
             //********************************************************************************************************************
-            //dbg_count++;
-            //if (dbg_count > 10)
-            //{
-            //    dbg_count = 0;
+
+            /*
                 if (list_plc.Any())
                     foreach (plc p in list_plc)
                         p.ReadRunningConfig();
-            //}
+            */
 
-
+            /*
             if (list_plc.Any())
             {
                 //********************************************************************************************************************
@@ -1111,8 +1131,8 @@ namespace AutoHome
                             p.send(FrameHeaderFlag.MngData, p.ListSensorIDs.ToArray());
                         }
                     }
-            }
-            
+            }*/
+
         }
 
         /// <summary>
@@ -1128,13 +1148,15 @@ namespace AutoHome
 
             foreach (ToolStripDropDownButton p in statusStrip_bottom.Items)
             {
-                if (((plc)p.Tag) != null) //TODO Server Button nicht beachten, dann abfrage auf !=null überflüssig
+                if (((plc)p.Tag) != null && ((plc)p.Tag).getClient() != null) //TODO Server Button nicht beachten, dann abfrage auf !=null überflüssig
                 {
+                    //udp_state state = ((plc)p.Tag).ConnectionState;
                     udp_state state;
                     if (((plc)p.Tag).getClient() == null)
                         state = udp_state.SendError;
                     else
                         state = ((plc)p.Tag).getClient().state;
+
                     if (state == udp_state.connected && p.BackColor != Color.LightGreen)
                         p.BackColor = Color.LightGreen;
                     else if (state == udp_state.disconnected && p.BackColor != Color.Yellow)
@@ -1143,10 +1165,11 @@ namespace AutoHome
                         p.BackColor = Color.Red;
 
                     //wenn verbindung disconnected automatischer reconnect
-                    if (state == udp_state.disconnected && var.reconnect_on_connection_lose && 
-                        (((plc)p.Tag).reconnect_counter <= var.reconnect_on_connection_lose_count)) {
-                        ((plc)p.Tag).connect(CpsNet);
-                    }
+                    //if (state == udp_state.disconnected && var.reconnect_on_connection_lose && 
+                    //    (((plc)p.Tag).reconnect_counter <= var.reconnect_on_connection_lose_count)) {
+                    //    ((plc)p.Tag).connect();
+                    //    log.msg(this, "connect because of auto-reconnect");
+                    //}
                 }
             }
         }
@@ -1186,11 +1209,12 @@ namespace AutoHome
                 log.exception(this, "timer_refresh_control_Tick", ex);
             }
         }
+
         #endregion
 
         #region client callback (darstellung der werte in GUI)  ==> obsulete, now handled over plc.cs
-        
-         /// <summary>
+
+        /// <summary>
         /// interpretes the received Cps frame and display results @ gui
         /// </summary>
         /// <param name="f">received Cps frame</param>
@@ -1354,8 +1378,8 @@ namespace AutoHome
         //    foreach (plc p in list_plc) 
         //        if (p.IPplc==f.client.RemoteIp) 
         //            p.SetAktuatorData(f);
-                
-            
+
+
         //    ////[view platform] fill aktuator dialog box with values
         //    //if (_FrmMain_controlDialog != null)
         //    //    if (f.isIOIndex(_FrmMain_controlDialog.get_aktuator_id()))
@@ -1376,7 +1400,7 @@ namespace AutoHome
         //    //        if (f.isIOIndex(ac.aktuatorIndex))
         //    //            ac.interprete(f);
         //    //    }
-            
+
         //}
 
         /// <summary>
@@ -1406,6 +1430,5 @@ namespace AutoHome
 
         #endregion
 
-       
     }
 }

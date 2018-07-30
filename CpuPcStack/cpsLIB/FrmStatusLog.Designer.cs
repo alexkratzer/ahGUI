@@ -40,12 +40,10 @@
             this.button_hide_filter = new System.Windows.Forms.Button();
             this.cLB_msgType = new System.Windows.Forms.CheckedListBox();
             this.cLB_filter_clients = new System.Windows.Forms.CheckedListBox();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.footer_TSSL_filtered = new System.Windows.Forms.ToolStripStatusLabel();
+            this.filterstatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dGV_Log)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel_filter.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // dGV_Log
@@ -66,7 +64,8 @@
             this.autoScrollToolStripMenuItem,
             this.freezeToolStripMenuItem,
             this.toolStripComboBox1,
-            this.filterToolStripMenuItem});
+            this.filterToolStripMenuItem,
+            this.filterstatusToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1094, 27);
@@ -152,28 +151,17 @@
             this.cLB_filter_clients.Size = new System.Drawing.Size(137, 109);
             this.cLB_filter_clients.TabIndex = 0;
             // 
-            // statusStrip1
+            // filterstatusToolStripMenuItem
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.footer_TSSL_filtered});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 562);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1094, 22);
-            this.statusStrip1.TabIndex = 6;
-            this.statusStrip1.Text = "msg filtered: x";
-            // 
-            // footer_TSSL_filtered
-            // 
-            this.footer_TSSL_filtered.Name = "footer_TSSL_filtered";
-            this.footer_TSSL_filtered.Size = new System.Drawing.Size(81, 17);
-            this.footer_TSSL_filtered.Text = "msg filtered: x";
+            this.filterstatusToolStripMenuItem.Name = "filterstatusToolStripMenuItem";
+            this.filterstatusToolStripMenuItem.Size = new System.Drawing.Size(93, 23);
+            this.filterstatusToolStripMenuItem.Text = "msg filtered: x";
             // 
             // FrmStatusLog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1094, 584);
-            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.panel_filter);
             this.Controls.Add(this.dGV_Log);
             this.Controls.Add(this.menuStrip1);
@@ -185,8 +173,6 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.panel_filter.ResumeLayout(false);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -206,7 +192,6 @@
         private System.Windows.Forms.CheckedListBox cLB_msgType;
         private System.Windows.Forms.ToolStripMenuItem filterToolStripMenuItem;
         private System.Windows.Forms.Button button_hide_filter;
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel footer_TSSL_filtered;
+        private System.Windows.Forms.ToolStripMenuItem filterstatusToolStripMenuItem;
     }
 }
